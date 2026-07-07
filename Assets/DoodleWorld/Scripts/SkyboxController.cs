@@ -1,12 +1,10 @@
 using UnityEngine;
-using Cysharp.Threading.Tasks;
 
 public class SkyColorController : MonoBehaviour
 {
     public Light sun;
     public Material skyboxMat;
 
-    // 👇 追加（Inspectorで編集できる）
     public Color nightColor;
     public Color morningColor;
     public Color dayColor;

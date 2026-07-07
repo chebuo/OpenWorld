@@ -1,4 +1,4 @@
-enum PlayerState 
+public enum PlayerState 
 {
     idle,
     walking,
