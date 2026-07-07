@@ -4,6 +4,12 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/DoodleWorld/Scenes/Title.unity
+    guid: 4e50070dae5522a429d241cdf4e3a423
+  - enabled: 1
+    path: Assets/DoodleWorld/Scenes/Field.unity
+    guid: 290c66c25a224004993764ebf2329136
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
