@@ -62,7 +62,7 @@ namespace DoodleWorld
 
         public async UniTask EndGame()
         {
-            ChangeState(GameState.GameOver);
+            MoveScene("Title");
             Debug.Log("Game Ended");
             await UniTask.WaitUntil(()=>currentState==GameState.Title);
         }
