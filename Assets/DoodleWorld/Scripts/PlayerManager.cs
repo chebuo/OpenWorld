@@ -1,15 +1,26 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 
 public class PlayerManager : MonoBehaviour
 {
+    InputAction move;
+    InputAction jump;
+    InputAction attack;
     PlayerState currentState = PlayerState.idle;
     PlayerController playerController;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    async void Start()
     {
+        move=InputSystem.actions.FindAction("Move");
+        jump=InputSystem.actions.FindAction("Jump");
+        attack=InputSystem.actions.FindAction("Attack");
+        move.Enable();
+        jump.Enable();
+        attack.Enable();
         playerController = this.GetComponent<PlayerController>();
-        StateLoop().Forget();
+        await StateLoop();
     }
 
     async UniTask StateLoop()
@@ -41,7 +52,7 @@ public class PlayerManager : MonoBehaviour
     async UniTask IdleLoop()
     {
         Debug.Log("Idle Loop");
-        while (true)
+        //while (true)
         {
             OnEnterIdle();
             while (currentState == PlayerState.idle)
@@ -60,7 +71,20 @@ public class PlayerManager : MonoBehaviour
 
     void OnIdle()
     {
-        Debug.Log("Idle");
+        var moveValue = move.ReadValue<Vector2>();
+        Debug.Log($"Move: {moveValue}");
+        if (moveValue != Vector2.zero)
+        {
+            ChangeState(PlayerState.walking);
+        }
+        else if (jump.triggered)
+        {
+            ChangeState(PlayerState.jumping);
+        }
+        else if (attack.triggered)
+        {
+            ChangeState(PlayerState.attacking);
+        }
     }
 
     void OnExitIdle()
@@ -71,7 +95,7 @@ public class PlayerManager : MonoBehaviour
     async UniTask WalkingLoop()
     {
         Debug.Log("Walking Loop");
-        while (true)
+        //while (true)
         {
             OnEnterWalking();
             while (currentState == PlayerState.walking)
@@ -90,6 +114,22 @@ public class PlayerManager : MonoBehaviour
 
     void OnWalking()
     {
+        var moveValue=move.ReadValue<Vector2>();
+        if (moveValue == Vector2.zero)
+        {
+            ChangeState(PlayerState.idle);
+        }
+        if (jump.triggered)
+        {
+            ChangeState(PlayerState.jumping);
+            return;
+        }
+        if (attack.triggered)
+        {
+            ChangeState(PlayerState.attacking);
+            return;
+        }
+        playerController.Move();
         Debug.Log("Walking");
     }
 
@@ -101,7 +141,7 @@ public class PlayerManager : MonoBehaviour
     async UniTask JumpingLoop()
     {
         Debug.Log("Jumping Loop");
-        while (true)
+        //while (true)
         {
             OnEnterJumping();
             while (currentState == PlayerState.jumping)
@@ -120,7 +160,7 @@ public class PlayerManager : MonoBehaviour
 
     void OnJumping()
     {
-        Debug.Log("Jumping");
+        playerController.Jump();
     }
 
     void OnExitJumping()
@@ -131,7 +171,7 @@ public class PlayerManager : MonoBehaviour
     async UniTask AttackingLoop()
     {
         Debug.Log("Attacking Loop");
-        while (true)
+        //while (true)
         {
             OnEnterAttacking();
             while (currentState == PlayerState.attacking)
@@ -150,7 +190,7 @@ public class PlayerManager : MonoBehaviour
 
     void OnAttacking()
     {
-        Debug.Log("Attacking");
+        playerController.Attack();
     }
 
     void OnExitAttacking()
