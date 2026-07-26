@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class AutoGenerateFloor : MonoBehaviour
 {
-
    public int width = 30;
    public int height = 18;
    public float scale = 5.0f;
@@ -125,40 +124,40 @@ public class AutoGenerateFloor : MonoBehaviour
    }
 
     float GroundHeight(float x, float z)
-{
-    // ===== 通常の地形 =====
-    float large = Mathf.PerlinNoise(x * wave * 0.03f, z * wave * 0.03f) * peak * 1.2f;
-    float medium = Mathf.PerlinNoise(x * wave * 0.08f, z * wave * 0.08f) * peak * 0.5f;
-    float small = Mathf.PerlinNoise(x * wave * 0.2f, z * wave * 0.2f) * peak * 0.2f;
+    {
+        // ===== 通常の地形 =====
+        float large = Mathf.PerlinNoise(x * wave * 0.03f, z * wave * 0.03f) * peak * 1.2f;
+        float medium = Mathf.PerlinNoise(x * wave * 0.08f, z * wave * 0.08f) * peak * 0.5f;
+        float small = Mathf.PerlinNoise(x * wave * 0.2f, z * wave * 0.2f) * peak * 0.2f;
 
-    float baseHeight = large+small ;
+        float baseHeight = large+small ;
 
-    // ===== 中心座標 =====
-    float centerX = width * scale * 0.5f;
-    float centerZ = height * scale * 0.866f; // 三角グリッドなので少し補正
+        // ===== 中心座標 =====
+        float centerX = width * scale * 0.5f;
+        float centerZ = height * scale * 0.866f; // 三角グリッドなので少し補正
 
-    // ===== 中心からの距離 =====
-    float dist = Vector2.Distance(new Vector2(x, z), new Vector2(centerX, centerZ));
+        // ===== 中心からの距離 =====
+        float dist = Vector2.Distance(new Vector2(x, z), new Vector2(centerX, centerZ));
 
-    // ===== 半径 =====
-    float radius = mountainWidth * scale;
+        // ===== 半径 =====
+        float radius = mountainWidth * scale;
 
-    // ===== 盆地マスク =====
-    float mask = Mathf.Clamp01(dist / radius);
-    //mask=Mathf.Pow(mask, 2f); // 中央を低くするために二乗する
+        // ===== 盆地マスク =====
+        float mask = Mathf.Clamp01(dist / radius);
+        //mask=Mathf.Pow(mask, 2f); // 中央を低くするために二乗する
 
-    // なめらかにする
-    mask = Mathf.SmoothStep(0f, 0.8f, mask);
+        // なめらかにする
+        mask = Mathf.SmoothStep(0f, 0.8f, mask);
 
-    // ===== 山 =====
-    float mountain = MountainHeight(x, z);
+        // ===== 山 =====
+        float mountain = MountainHeight(x, z);
 
-    // ===== 合成 =====
-    float y = Mathf.Lerp(0f, baseHeight, 1 - mask)   // 中央は低く
-            + Mathf.Lerp(0f, mountain, mask);        // 外側は高く
+        // ===== 合成 =====
+        float y = Mathf.Lerp(0f, baseHeight, 1 - mask)   // 中央は低く
+                + Mathf.Lerp(0f, mountain, mask);        // 外側は高く
 
-    return y;
-}
+        return y;
+    }
 
     float MountainHeight(float x, float z)
     {
