@@ -1,0 +1,94 @@
+#pragma kernel CSMain
+
+uint3 Dims;
+
+float scale;
+float wave;
+float peak;
+float width;
+float height;
+float mountainWidth;
+
+RWStructuredBuffer<float> Voxels;
+
+float noise(float2 p)
+{
+    return frac(sin(dot(p, float2(12.9898,78.233))) * 43758.5453);
+}
+
+float MountainHeight(float x, float z)
+{
+    float y = 0;
+
+    // 大きい地形（山）
+    float large = noise(float2(x,z)* wave * 3) * peak * 60;
+
+    // 中くらい（丘）
+    //float medium = Mathf.PerlinNoise(x * wave , z * wave ) * peak * 5f;
+
+    // 細かい凹凸
+    //float small = Mathf.PerlinNoise(x * wave , z * wave  ) * peak * 2f;
+
+    y = large ;
+
+    // 山をなだらかにする
+    //y = Mathf.Pow(y, 1.3f);
+
+    return y;
+}
+
+float GroundHeight(float x, float z)
+{
+    // ===== 通常の地形 =====
+    float large = noise(float2(x,z) * wave * 0.03) * peak * 1.2;
+    float medium = noise(float2(x,z)* wave * 0.08) * peak * 0.5;
+    float small = noise(float2(x,z) * wave * 0.2) * peak * 0.2;
+
+    float baseHeight = large+small ;
+
+    // ===== 中心座標 =====
+    float centerX = width * scale * 0.5;
+    float centerZ = height * scale * 0.866; // 三角グリッドなので少し補正
+
+    // ===== 中心からの距離 =====
+    float dist = distance(float2(x, z), float2(centerX, centerZ));
+
+    // ===== 半径 =====
+    float radius = mountainWidth * scale;
+
+    // ===== 盆地マスク =====
+    float mask = saturate(dist / radius);
+    //mask=Mathf.Pow(mask, 2f); // 中央を低くするために二乗する
+
+    // なめらかにする
+    mask = smoothstep(0, 0.8, mask);
+
+    // ===== 山 =====
+    float mountain = MountainHeight(x, z);
+
+    // ===== 合成 =====
+    float y = lerp(0, baseHeight, 1 - mask)   // 中央は低く
+            + lerp(0, mountain, mask);        // 外側は高く
+
+    return y;
+}
+
+[numthreads(8,8,8)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    if (any(id >= Dims)) return;
+
+    uint index = id.x + Dims.x * (id.y + Dims.y * id.z);
+
+    float3 p = id*scale;
+
+    float height = GroundHeight(p.x,p.z);
+
+    float density = height-p.y;
+    if (!isfinite(density))
+    {
+        density = 0;
+    }
+
+    Voxels[index] = density;
+}
