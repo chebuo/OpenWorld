@@ -3,23 +3,28 @@ using UnityEngine.InputSystem;
 using Cysharp.Threading.Tasks;
 using System.Threading.Tasks;
 using UnityEditor.Callbacks;
+using System.Globalization;
 
 public class PlayerManager : MonoBehaviour
 {
     InputAction move;
     InputAction jump;
     InputAction attack;
+    InputAction dig;
     PlayerState currentState = PlayerState.idle;
     PlayerController playerController;
+    TerrainGenerator terrainGenerator;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     async void Start()
     {
         move=InputSystem.actions.FindAction("Move");
         jump=InputSystem.actions.FindAction("Jump");
         attack=InputSystem.actions.FindAction("Attack");
+        dig=InputSystem.actions.FindAction("Dig");
         move.Enable();
         jump.Enable();
         attack.Enable();
+        dig.Enable();
         playerController = this.GetComponent<PlayerController>();
         await StateLoop();
     }
@@ -76,6 +81,10 @@ public class PlayerManager : MonoBehaviour
         else if (jump.triggered)
         {
             playerController.Jump();
+        }
+        else if (dig.triggered)
+        {
+            playerController.Dig();
         }
         else if (attack.triggered)
         {

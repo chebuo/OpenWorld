@@ -10,15 +10,18 @@ public class PlayerController : MonoBehaviour
     InputAction move;
     InputAction jump;
     InputAction attack;
+    InputAction dig;
     InputAction look;
 
     Rigidbody rb;
+    [SerializeField]TerrainGenerator terrainGenerator;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         move=InputSystem.actions.FindAction("Move");
         jump=InputSystem.actions.FindAction("Jump");
         attack=InputSystem.actions.FindAction("Attack");
+        dig=InputSystem.actions.FindAction("Dig");
         look=InputSystem.actions.FindAction("Look");
         move.Enable();
         jump.Enable();
@@ -54,9 +57,31 @@ public class PlayerController : MonoBehaviour
         // Implementation for attack logic
     }
 
+    public void Dig()
+    {
+        Debug.Log("Controller: Dig 呼ばれた");
+
+        if (terrainGenerator == null)
+        {
+            Debug.LogError("TerrainGenerator null");
+            return;
+        }
+
+        // とりあえず前方に掘る（デバッグ用）
+        Vector3 digPos = transform.position + Vector3.down * 3f;
+
+        float radius = 4f;
+
+        Debug.Log($"Dig位置: {digPos}");
+        Debug.DrawLine(transform.position, digPos, Color.red, 2f);
+        Debug.DrawRay(digPos, Vector3.up * 2f, Color.green, 2f);
+
+        terrainGenerator.Dig(digPos, radius);
+    }
+
     public void ChangeDir()
     {
         var lookValue=look.ReadValue<Vector2>();
-        transform.rotation=Quaternion.Euler(0,lookValue.x,0);
+        transform.Rotate(0,lookValue.x,0);
     }
 }
