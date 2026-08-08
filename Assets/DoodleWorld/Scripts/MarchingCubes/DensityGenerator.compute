@@ -1,5 +1,7 @@
 #pragma kernel CSMain
 
+#include "PerlinNoise3D.hlsl"
+
 uint3 Dims;
 
 float scale;
@@ -7,68 +9,54 @@ float wave;
 float peak;
 float width;
 float height;
-float mountainWidth;
+
+// 盆地・山コントロール用パラメータ
+float basinRadius;       // 盆地の全体半径 (メートル)
+float wallStartRadius;   // 山並みが始まる半径 (メートル)
+float wallHeight;        // 最高峰の山の高さ (メートル)
+float wallSteepness;     // 勾配コントロール
 
 RWStructuredBuffer<float> Voxels;
 
-float noise(float2 p)
-{
-    return frac(sin(dot(p, float2(12.9898,78.233))) * 43758.5453);
-}
-
-float MountainHeight(float x, float z)
-{
-    float y = 0;
-
-    // 大きい地形（山）
-    float large = noise(float2(x,z)* wave * 3) * peak * 60;
-
-    // 中くらい（丘）
-    //float medium = Mathf.PerlinNoise(x * wave , z * wave ) * peak * 5f;
-
-    // 細かい凹凸
-    //float small = Mathf.PerlinNoise(x * wave , z * wave  ) * peak * 2f;
-
-    y = large ;
-
-    // 山をなだらかにする
-    //y = Mathf.Pow(y, 1.3f);
-
-    return y;
-}
-
 float GroundHeight(float x, float z)
 {
-    // ===== 通常の地形 =====
-    float large = noise(float2(x,z) * wave * 0.03) * peak * 1.2;
-    float medium = noise(float2(x,z)* wave * 0.08) * peak * 0.5;
-    float small = noise(float2(x,z) * wave * 0.2) * peak * 0.2;
+    // ===== 1. 中心座標 (ワールド空間) =====
+    float centerX = Dims.x * scale * 0.5;
+    float centerZ = Dims.z * scale * 0.5;
 
-    float baseHeight = large+small ;
-
-    // ===== 中心座標 =====
-    float centerX = width * scale * 0.5;
-    float centerZ = height * scale * 0.866; // 三角グリッドなので少し補正
-
-    // ===== 中心からの距離 =====
+    // ===== 2. 中心からの距離 =====
     float dist = distance(float2(x, z), float2(centerX, centerZ));
 
-    // ===== 半径 =====
-    float radius = mountainWidth * scale;
+    // ===== 3. 盆地底部の緩やかな PerlinNoise 地形 (GroundGenerator.cs を参考) =====
+    // 大・中・小のノイズを合成して歩きやすく滑らかな起伏を作成
+    float pLarge  = (PerlinNoise2D(float2(x, z) * wave * 0.03) * 0.5 + 0.5) * peak * 1.2;
+    float pMedium = (PerlinNoise2D(float2(x, z) * wave * 0.08) * 0.5 + 0.5) * peak * 0.5;
+    float pSmall  = (PerlinNoise2D(float2(x, z) * wave * 0.2)  * 0.5 + 0.5) * peak * 0.2;
+    float baseHeight = pLarge + pMedium + pSmall;
 
-    // ===== 盆地マスク =====
-    float mask = saturate(dist / radius);
-    //mask=Mathf.Pow(mask, 2f); // 中央を低くするために二乗する
+    // ===== 4. 盆地の外側へ向かう 3〜4 つの連山エリア =====
+    float deltaRadius = max(0.001, basinRadius - wallStartRadius);
+    float t = saturate((dist - wallStartRadius) / deltaRadius);
 
-    // なめらかにする
-    mask = smoothstep(0, 0.8, mask);
+    // 外側へ向かって段階的に高くなるベースの進行度 (smoothstep)
+    float progress = smoothstep(0.0, 1.0, t);
 
-    // ===== 山 =====
-    float mountain = MountainHeight(x, z);
+    // 進行度に応じて 3〜4 つの山が連なる波 (Ripples) を生成
+    float ridgeWave = abs(sin(progress * 3.14159265 * 3.5)); 
 
-    // ===== 合成 =====
-    float y = lerp(0, baseHeight, 1 - mask)   // 中央は低く
-            + lerp(0, mountain, mask);        // 外側は高く
+    // 山肌の立体的な PerlinNoise 凹凸
+    float mountainNoise1 = (PerlinNoise2D(float2(x, z) * wave * 0.2) * 0.5 + 0.5) * (peak * 6.0);
+    float mountainNoise2 = (PerlinNoise2D(float2(x, z) * wave * 0.5) * 0.5 + 0.5) * (peak * 2.5);
+
+    // 一番高い山頂に到達するまでに 3〜4 個の山が見えるように高さと波を合成
+    float mountain = (progress * wallHeight) + (ridgeWave * peak * 4.0) + mountainNoise1 + mountainNoise2;
+
+    // ===== 5. 盆地マスク (GroundGenerator.cs と同じ合成スタイル) =====
+    float mask = smoothstep(0.0, 0.8, t);
+
+    // ===== 6. 合成 (中央は緩やかな PerlinNoise 地面、外側は 3〜4 つの山々が連なる高山) =====
+    float gridBaseOffset = Dims.y * scale * 0.25; // グリッド内に綺麗に収めるベース高度
+    float y = gridBaseOffset + lerp(baseHeight, mountain, mask);
 
     return y;
 }
@@ -80,11 +68,11 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 
     uint index = id.x + Dims.x * (id.y + Dims.y * id.z);
 
-    float3 p = id*scale;
+    float3 p = id * scale;
 
-    float height = GroundHeight(p.x,p.z);
+    float terrainHeight = GroundHeight(p.x, p.z);
 
-    float density = height-p.y;
+    float density = terrainHeight - p.y;
     if (!isfinite(density))
     {
         density = 0;

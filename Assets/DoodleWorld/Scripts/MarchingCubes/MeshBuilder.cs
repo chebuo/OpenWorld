@@ -54,6 +54,9 @@ sealed class MeshBuilder : System.IDisposable
         }
 
         UpdateColliderMesh();
+        collider.cookingOptions = MeshColliderCookingOptions.EnableMeshCleaning
+                                | MeshColliderCookingOptions.WeldColocatedVertices
+                                | MeshColliderCookingOptions.UseFastMidphase;
         collider.sharedMesh = _colliderMesh;
     }
 
