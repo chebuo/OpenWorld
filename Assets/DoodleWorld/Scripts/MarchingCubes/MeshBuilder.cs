@@ -54,9 +54,17 @@ sealed class MeshBuilder : System.IDisposable
         }
 
         UpdateColliderMesh();
+
+        // PhysX の空間構造ツリー (BVH) を強制的に全領域で再構築
+        if (_colliderMesh != null && _colliderMesh.vertexCount > 0)
+        {
+            Physics.BakeMesh(_colliderMesh.GetInstanceID(), false);
+        }
+
         collider.cookingOptions = MeshColliderCookingOptions.EnableMeshCleaning
                                 | MeshColliderCookingOptions.WeldColocatedVertices
                                 | MeshColliderCookingOptions.UseFastMidphase;
+        collider.sharedMesh = null;
         collider.sharedMesh = _colliderMesh;
     }
 
@@ -74,15 +82,47 @@ sealed class MeshBuilder : System.IDisposable
 
         _vertexBuffer.GetData(_vertexReadbackBuffer, 0, 0, activeVertices);
 
-        for (int i = 0; i < activeVertices; i++)
+        var validPositions = new System.Collections.Generic.List<Vector3>(activeVertices);
+        var validIndices = new System.Collections.Generic.List<int>(activeVertices);
+
+        for (int i = 0; i < activeVertices; i += 3)
         {
-            _colliderPositions[i] = _vertexReadbackBuffer[i].position;
+            Vector3 v0 = _vertexReadbackBuffer[i + 0].position;
+            Vector3 v1 = _vertexReadbackBuffer[i + 1].position;
+            Vector3 v2 = _vertexReadbackBuffer[i + 2].position;
+
+            // 1. 非有限値 (NaN, Infinity) チェック
+            if (!float.IsFinite(v0.x) || !float.IsFinite(v0.y) || !float.IsFinite(v0.z) ||
+                !float.IsFinite(v1.x) || !float.IsFinite(v1.y) || !float.IsFinite(v1.z) ||
+                !float.IsFinite(v2.x) || !float.IsFinite(v2.y) || !float.IsFinite(v2.z)) continue;
+
+            // 2. 完全に同じ座標の重なりチェック (縮退防止)
+            if (v0 == v1 || v1 == v2 || v2 == v0) continue;
+
+            // 3. 完全なゼロ面積チェック (直線上に並ぶ三角形を除外)
+            Vector3 cross = Vector3.Cross(v1 - v0, v2 - v0);
+            if (cross == Vector3.zero) continue;
+
+            // 4. 有効な正常ポリゴンとして登録
+            int baseIdx = validPositions.Count;
+            validPositions.Add(v0);
+            validPositions.Add(v1);
+            validPositions.Add(v2);
+
+            validIndices.Add(baseIdx + 0);
+            validIndices.Add(baseIdx + 1);
+            validIndices.Add(baseIdx + 2);
         }
 
         _colliderMesh.Clear();
-        _colliderMesh.SetVertices(_colliderPositions, 0, activeVertices);
-        _colliderMesh.SetTriangles(_colliderIndices, 0, activeVertices, 0);
-        _colliderMesh.RecalculateBounds();
+
+        if (validPositions.Count > 0)
+        {
+            _colliderMesh.SetVertices(validPositions);
+            _colliderMesh.SetTriangles(validIndices, 0);
+            _colliderMesh.RecalculateBounds();
+            _colliderMesh.RecalculateNormals();
+        }
     }
 
     #endregion
