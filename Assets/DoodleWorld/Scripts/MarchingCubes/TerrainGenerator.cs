@@ -10,7 +10,7 @@ sealed class TerrainGenerator : MonoBehaviour
     [SerializeField] float _targetValue = 0;
 
     [Header("Basin & Mountain Wall Settings")]
-    [Tooltip("盆地全体の半径 (メートル)。現在のDimensions (128x64x128) の範囲に合わせて初期値60mに設定しています。")]
+    [Tooltip("盆地全体の半径 (メートル)")]
     [SerializeField] float _basinRadius = 60.0f;
 
     [Tooltip("切り立った山壁が始まり、登れなくなる半径 (メートル)")]
@@ -40,14 +40,19 @@ sealed class TerrainGenerator : MonoBehaviour
     {
         _voxelBuffer = new ComputeBuffer(VoxelCount, sizeof(float));
         _builder = new MeshBuilder(_dimensions, _triangleBudget, _builderCompute);
-        _density=new DensityField(_dimensions);
+        _density = new DensityField(_dimensions);
 
-        GenerateCPU();
-        UploadToGPU();
+        // 1. ComputeShader で地形密度を生成
+        GenerateGPU();
+
+        // 2. GPU のボクセルデータを CPU 側の _density に読み込んで同期
+        DownloadFromGPU();
+
+        // 3. メッシュ構築
         BuildMesh();
     }
 
-    void Generate()
+    void GenerateGPU()
     {
         _densityCompute.SetInts("Dims", _dimensions);
         _densityCompute.SetFloat("scale", _gridScale);
@@ -63,37 +68,59 @@ sealed class TerrainGenerator : MonoBehaviour
         _densityCompute.DispatchThreads(0, _dimensions);
     }
 
+    // 地形を掘る処理
     public void Dig(Vector3 worldPos, float radius)
     {
-        // ⭐ ワールド → ローカル変換
+        // ワールド座標 → オブジェクトのローカル座標へ変換
         Vector3 localPos = transform.InverseTransformPoint(worldPos);
 
-        int minX = Mathf.Max(0, (int)((localPos.x - radius) / _gridScale));
-        int maxX = Mathf.Min(_dimensions.x, (int)((localPos.x + radius) / _gridScale));
+        // Marching Cubes のローカル原点は (Dims / 2) なので、グリッド空間上の中心座標を取得
+        Vector3 gridCenter = (localPos / _gridScale) + ((Vector3)_dimensions * 0.5f);
+        float gridRadius = radius / _gridScale;
 
-        int minY = Mathf.Max(0, (int)((localPos.y - radius) / _gridScale));
-        int maxY = Mathf.Min(_dimensions.y, (int)((localPos.y + radius) / _gridScale));
+        // 影響範囲のボクセルインデックス範囲を計算
+        int minX = Mathf.Clamp(Mathf.FloorToInt(gridCenter.x - gridRadius), 0, _dimensions.x);
+        int maxX = Mathf.Clamp(Mathf.CeilToInt(gridCenter.x + gridRadius), 0, _dimensions.x);
 
-        int minZ = Mathf.Max(0, (int)((localPos.z - radius) / _gridScale));
-        int maxZ = Mathf.Min(_dimensions.z, (int)((localPos.z + radius) / _gridScale));
+        int minY = Mathf.Clamp(Mathf.FloorToInt(gridCenter.y - gridRadius), 0, _dimensions.y);
+        int maxY = Mathf.Clamp(Mathf.CeilToInt(gridCenter.y + gridRadius), 0, _dimensions.y);
+
+        int minZ = Mathf.Clamp(Mathf.FloorToInt(gridCenter.z - gridRadius), 0, _dimensions.z);
+        int maxZ = Mathf.Clamp(Mathf.CeilToInt(gridCenter.z + gridRadius), 0, _dimensions.z);
+
+        bool modified = false;
 
         for (int x = minX; x < maxX; x++)
         for (int y = minY; y < maxY; y++)
         for (int z = minZ; z < maxZ; z++)
         {
-            Vector3 pos = new Vector3(x, y, z) * _gridScale;
+            // 各ボクセルのローカル空間座標
+            Vector3 voxelLocalPos = (new Vector3(x + 0.5f, y + 0.5f, z + 0.5f) - (Vector3)_dimensions * 0.5f) * _gridScale;
 
-            float dist = Vector3.Distance(pos, localPos);
+            // 掘削ポイントからの距離
+            float dist = Vector3.Distance(voxelLocalPos, localPos);
 
             if (dist < radius)
             {
-                float v = _density.Get(x,y,z);
-                _density.Set(x,y,z, v - (radius - dist));
+                float currentDensity = _density.Get(x, y, z);
+                // 掘削球の内部は確実に空気 (密度 < 0) に反転させる
+                float targetAirDensity =  currentDensity - (radius - dist);
+                float newDensity = Mathf.Min(currentDensity, targetAirDensity);
+
+                if (currentDensity != newDensity)
+                {
+                    _density.Set(x, y, z, newDensity);
+                    modified = true;
+                }
             }
         }
 
-        UploadToGPU();
-        BuildMesh();
+        if (modified)
+        {
+            // 変更されたボクセルデータを GPU へ転送してメッシュを即座に再構築
+            UploadToGPU();
+            BuildMesh();
+        }
     }
 
     void BuildMesh()
@@ -103,38 +130,38 @@ sealed class TerrainGenerator : MonoBehaviour
         _builder.UpdateMeshCollider(GetComponent<MeshCollider>());
     }
 
+    void UploadToGPU()
+    {
+        float[] flat = new float[VoxelCount];
+
+        for (int z = 0; z < _dimensions.z; z++)
+        for (int y = 0; y < _dimensions.y; y++)
+        for (int x = 0; x < _dimensions.x; x++)
+        {
+            int index = x + _dimensions.x * (y + _dimensions.y * z);
+            flat[index] = _density.Get(x, y, z);
+        }
+
+        _voxelBuffer.SetData(flat);
+    }
+
+    void DownloadFromGPU()
+    {
+        float[] flat = new float[VoxelCount];
+        _voxelBuffer.GetData(flat);
+
+        for (int z = 0; z < _dimensions.z; z++)
+        for (int y = 0; y < _dimensions.y; y++)
+        for (int x = 0; x < _dimensions.x; x++)
+        {
+            int index = x + _dimensions.x * (y + _dimensions.y * z);
+            _density.Set(x, y, z, flat[index]);
+        }
+    }
+
     void OnDestroy()
     {
         _voxelBuffer.Dispose();
         _builder.Dispose();
     }
-
-    void GenerateCPU()
-    {
-        for (int x = 0; x < _dimensions.x; x++)
-        for (int y = 0; y < _dimensions.y; y++)
-        for (int z = 0; z < _dimensions.z; z++)
-        {
-            float height = y;
-
-            float noise = Mathf.PerlinNoise(x * _wave, z * _wave) * _peak;
-
-            _density.Set(x,y,z, noise-height);
-        }
-    }
-
-    void UploadToGPU()
-    {
-        float[] flat = new float[VoxelCount];
-
-        int i = 0;
-        for (int x = 0; x < _dimensions.x; x++)
-        for (int y = 0; y < _dimensions.y; y++)
-        for (int z = 0; z < _dimensions.z; z++)
-            flat[i++] = _density.Get(x,y,z);
-
-        _voxelBuffer.SetData(flat);
-    }
-
-
 }
