@@ -335,7 +335,7 @@ Transform:
   m_GameObject: {fileID: 144130670}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5485.248, y: 358.65085, z: 4853.415}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -385,7 +385,7 @@ Transform:
   m_GameObject: {fileID: 1010518846}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5266.843, y: 304.2084, z: 4102.6763}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -675,6 +675,7 @@ MonoBehaviour:
   moveSpeed: 10
   jumpForce: 5
   attackForce: 5
+  terrainGenerator: {fileID: 1812782397}
 --- !u!114 &1204259528
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -968,17 +969,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b13dfa8ed56ee7f4ba0923ccaaf048ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TerrainGenerator
-  _dimensions: {x: 128, y: 64, z: 128}
-  _gridScale: 4
+  _dimensions: {x: 64, y: 64, z: 64}
+  _gridScale: 1
   _triangleBudget: 524288
   _targetValue: 0
   _basinRadius: 300
   _wallStartRadius: 200
-  _wallHeight: 30
+  _wallHeight: 0
   _wallSteepness: 6
   _wave: 0.001
   _peak: 1
-  _densityCompute: {fileID: 7200000, guid: c46bee83c5eae7b44b98597b05ed190d, type: 3}
+  _densityCompute: {fileID: 7200000, guid: dc5b03a418c0eea4e892e8ccb845f5c8, type: 3}
   _builderCompute: {fileID: 7200000, guid: 9f19ed91e8aa34430ac0ea80fb20eead, type: 3}
 --- !u!4 &1812782398
 Transform:
@@ -1008,9 +1009,7 @@ GameObject:
   - component: {fileID: 1907874951}
   - component: {fileID: 1907874944}
   - component: {fileID: 1907874943}
-  - component: {fileID: 1907874948}
   - component: {fileID: 1907874950}
-  - component: {fileID: 1907874949}
   m_Layer: 0
   m_Name: CinemachineCamera
   m_TagString: Untagged
@@ -1046,7 +1045,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e8b78ac948f05a46a6d8339a503172b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineHardLookAt
-  LookAtOffset: {x: 0, y: 0, z: 0}
+  LookAtOffset: {x: 0, y: 2, z: -3}
 --- !u!114 &1907874946
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1104,82 +1103,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 11.31, y: -405.04, z: 0}
---- !u!114 &1907874948
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1907874942}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68bb026fafb42b14791938953eaace77, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineBasicMultiChannelPerlin
-  NoiseProfile: {fileID: 11400000, guid: a3dacaec0287d7444b4bd276816e1666, type: 2}
-  PivotOffset: {x: 0, y: 0, z: 0}
-  AmplitudeGain: 1
-  FrequencyGain: 0.3
-  m_NoiseOffsets: {x: -586.2012, y: 545.2041, z: 138.29196}
---- !u!114 &1907874949
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1907874942}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89875cdc57c54474a8a74efd9b2a3b5d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineInputAxisController
-  ScanRecursively: 1
-  SuppressInputWhileBlending: 1
-  IgnoreTimeScale: 0
-  m_ControllerManager:
-    Controllers:
-    - Name: Look Orbit X
-      Owner: {fileID: 1907874951}
-      Enabled: 1
-      Input:
-        InputAction: {fileID: 0}
-        Gain: 1
-        LegacyInput: 
-        LegacyGain: 1
-        CancelDeltaTime: 0
-      InputValue: 0
-      Driver:
-        AccelTime: 0
-        DecelTime: 0
-    - Name: Look Orbit Y
-      Owner: {fileID: 1907874951}
-      Enabled: 1
-      Input:
-        InputAction: {fileID: 0}
-        Gain: 1
-        LegacyInput: 
-        LegacyGain: 1
-        CancelDeltaTime: 0
-      InputValue: 0
-      Driver:
-        AccelTime: 0
-        DecelTime: 0
-    - Name: Orbit Scale
-      Owner: {fileID: 1907874951}
-      Enabled: 1
-      Input:
-        InputAction: {fileID: 0}
-        Gain: 1
-        LegacyInput: 
-        LegacyGain: 1
-        CancelDeltaTime: 0
-      InputValue: 0
-      Driver:
-        AccelTime: 0
-        DecelTime: 0
-  PlayerIndex: -1
-  AutoEnableInputs: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1907874950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1212,7 +1136,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineOrbitalFollow
   TargetOffset: {x: 0, y: 0, z: 0}
   TrackerSettings:
-    BindingMode: 4
+    BindingMode: 3
     PositionDamping: {x: 1, y: 1, z: 1}
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
