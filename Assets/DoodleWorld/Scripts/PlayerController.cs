@@ -57,7 +57,7 @@ public class PlayerController : MonoBehaviour
         // Implementation for attack logic
     }
 
-    public void Dig()
+    public void Dig(float radius)
     {
         Debug.Log("Controller: Dig 呼ばれた");
 
@@ -68,9 +68,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // とりあえず前方に掘る（デバッグ用）
-        Vector3 digPos = transform.position + Vector3.down * 3f;
-
-        float radius = 4f;
+        Vector3 digPos = transform.position + Vector3.down * 2f;
 
         Debug.Log($"Dig位置: {digPos}");
         Debug.DrawLine(transform.position, digPos, Color.red, 2f);
