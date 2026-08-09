@@ -45,6 +45,9 @@ public class PlayerManager : MonoBehaviour
                 case PlayerState.attacking:
                     await AttackingLoop();
                     break;
+                case PlayerState.dead:
+                    await DeadLoop();
+                    break;
                 default:
                     break;
             }
@@ -84,7 +87,7 @@ public class PlayerManager : MonoBehaviour
         }
         else if (dig.triggered)
         {
-            playerController.Dig();
+            playerController.Dig(3f);
         }
         else if (attack.triggered)
         {
@@ -164,6 +167,12 @@ public class PlayerManager : MonoBehaviour
     void OnExitAttacking()
     {
         Debug.Log("Exit Attacking");
+    }
+
+    async UniTask DeadLoop()
+    {
+        Debug.Log("You Dead Loop");
+
     }
 
     public void ChangeState(PlayerState state)
