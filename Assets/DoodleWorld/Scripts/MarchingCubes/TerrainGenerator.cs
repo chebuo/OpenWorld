@@ -9,23 +9,6 @@ sealed class TerrainGenerator : MonoBehaviour
     [SerializeField] int _triangleBudget = 262144;
     [SerializeField] float _targetValue = 0;
 
-    [Header("Basin & Mountain Wall Settings")]
-    [Tooltip("盆地全体の半径 (メートル)")]
-    [SerializeField] float _basinRadius = 60.0f;
-
-    [Tooltip("切り立った山壁が始まり、登れなくなる半径 (メートル)")]
-    [SerializeField] float _wallStartRadius = 40.0f;
-
-    [Tooltip("壁・山頂の高さ (メートル)")]
-    [SerializeField] float _wallHeight = 35.0f;
-
-    [Tooltip("壁の急鋭さ指数 (数値が大きいほど崖のように垂直に立ち上がる)")]
-    [SerializeField] float _wallSteepness = 3.0f;
-
-    [Header("Noise Settings")]
-    [SerializeField] float _wave = 0.05f;
-    [SerializeField] float _peak = 5.0f; 
-
     [Header("Compute Shaders")]
     [SerializeField] ComputeShader _densityCompute;
     [SerializeField] ComputeShader _builderCompute;
@@ -35,6 +18,8 @@ sealed class TerrainGenerator : MonoBehaviour
     DensityField _density;
 
     int VoxelCount => _dimensions.x * _dimensions.y * _dimensions.z;
+
+    public bool isInit=false;
 
     void Start()
     {
@@ -50,20 +35,14 @@ sealed class TerrainGenerator : MonoBehaviour
 
         // 3. メッシュ構築
         BuildMesh();
+
+        isInit=true;
     }
 
     void GenerateGPU()
     {
         _densityCompute.SetInts("Dims", _dimensions);
         _densityCompute.SetFloat("scale", _gridScale);
-        _densityCompute.SetFloat("wave", _wave);
-        _densityCompute.SetFloat("peak", _peak);
-        _densityCompute.SetFloat("width", _dimensions.x);
-        _densityCompute.SetFloat("height", _dimensions.z);
-        _densityCompute.SetFloat("basinRadius", _basinRadius);
-        _densityCompute.SetFloat("wallStartRadius", _wallStartRadius);
-        _densityCompute.SetFloat("wallHeight", _wallHeight);
-        _densityCompute.SetFloat("wallSteepness", _wallSteepness);
         _densityCompute.SetBuffer(0, "Voxels", _voxelBuffer);
         _densityCompute.DispatchThreads(0, _dimensions);
     }
@@ -78,15 +57,17 @@ sealed class TerrainGenerator : MonoBehaviour
         Vector3 gridCenter = (localPos / _gridScale) + ((Vector3)_dimensions * 0.5f);
         float gridRadius = radius / _gridScale;
 
+        int margin = 2; // 掘削範囲の余白 (ボクセルの半分程度)
+
         // 影響範囲のボクセルインデックス範囲を計算
-        int minX = Mathf.Clamp(Mathf.FloorToInt(gridCenter.x - gridRadius), 0, _dimensions.x);
-        int maxX = Mathf.Clamp(Mathf.CeilToInt(gridCenter.x + gridRadius), 0, _dimensions.x);
+        int minX = Mathf.Clamp(Mathf.FloorToInt(gridCenter.x - gridRadius - margin), 0, _dimensions.x-margin);
+        int maxX = Mathf.Clamp(Mathf.CeilToInt(gridCenter.x + gridRadius + margin), 0, _dimensions.x-margin);
 
-        int minY = Mathf.Clamp(Mathf.FloorToInt(gridCenter.y - gridRadius), 0, _dimensions.y);
-        int maxY = Mathf.Clamp(Mathf.CeilToInt(gridCenter.y + gridRadius), 0, _dimensions.y);
+        int minY = Mathf.Clamp(Mathf.FloorToInt(gridCenter.y - gridRadius - margin), 0, _dimensions.y-margin);
+        int maxY = Mathf.Clamp(Mathf.CeilToInt(gridCenter.y + gridRadius + margin), 0, _dimensions.y-margin);
 
-        int minZ = Mathf.Clamp(Mathf.FloorToInt(gridCenter.z - gridRadius), 0, _dimensions.z);
-        int maxZ = Mathf.Clamp(Mathf.CeilToInt(gridCenter.z + gridRadius), 0, _dimensions.z);
+        int minZ = Mathf.Clamp(Mathf.FloorToInt(gridCenter.z - gridRadius - margin), 0, _dimensions.z-margin);
+        int maxZ = Mathf.Clamp(Mathf.CeilToInt(gridCenter.z + gridRadius + margin), 0, _dimensions.z-margin);
 
         bool modified = false;
 
@@ -94,6 +75,7 @@ sealed class TerrainGenerator : MonoBehaviour
         for (int y = minY; y < maxY; y++)
         for (int z = minZ; z < maxZ; z++)
         {
+            if(x<margin||x>=_dimensions.x-margin||y<margin||y>=_dimensions.y-margin||z<margin||z>=_dimensions.z-margin)continue;
             // 各ボクセルのローカル空間座標
             Vector3 voxelLocalPos = (new Vector3(x + 0.5f, y + 0.5f, z + 0.5f) - (Vector3)_dimensions * 0.5f) * _gridScale;
 
@@ -103,7 +85,6 @@ sealed class TerrainGenerator : MonoBehaviour
             if (dist < radius)
             {
                 float currentDensity = _density.Get(x, y, z);
-                // 掘削球の内部は確実に空気 (密度 < 0) に反転させる
                 float targetAirDensity =  currentDensity - (radius - dist);
                 float newDensity = Mathf.Min(currentDensity, targetAirDensity);
 
