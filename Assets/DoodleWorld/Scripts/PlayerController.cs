@@ -13,6 +13,8 @@ public class PlayerController : MonoBehaviour
     InputAction dig;
     InputAction look;
 
+    [SerializeField] Transform cameraTransform;
+
     Rigidbody rb;
     [SerializeField]TerrainGenerator terrainGenerator;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -35,14 +37,19 @@ public class PlayerController : MonoBehaviour
         ChangeDir();
     }
 
+    public void Init()
+    {
+        terrainGenerator.Dig(transform.position , 3f);
+    }
+
     public void Move()
     {
         var moveValue = move.ReadValue<Vector2>();
         Vector3 moveDir =
-        transform.forward * moveValue.y +
-        transform.right * moveValue.x;
+        cameraTransform.forward * moveValue.y +
+        cameraTransform.right * moveValue.x;
 
-        rb.linearVelocity = new Vector3(moveDir.x * moveSpeed,rb.linearVelocity.y,moveDir.z * moveSpeed);
+        rb.linearVelocity =moveDir * moveSpeed;
     }
 
 
@@ -57,7 +64,7 @@ public class PlayerController : MonoBehaviour
         // Implementation for attack logic
     }
 
-    public void Dig(float radius)
+    public void MoveDig(float radius)
     {
         Debug.Log("Controller: Dig 呼ばれた");
 
@@ -67,12 +74,9 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // とりあえず前方に掘る（デバッグ用）
-        Vector3 digPos = transform.position + Vector3.down * 2f;
+        Vector3 digPos = transform.position + transform.forward;
 
         Debug.Log($"Dig位置: {digPos}");
-        Debug.DrawLine(transform.position, digPos, Color.red, 2f);
-        Debug.DrawRay(digPos, Vector3.up * 2f, Color.green, 2f);
 
         terrainGenerator.Dig(digPos, radius);
     }
@@ -80,6 +84,6 @@ public class PlayerController : MonoBehaviour
     public void ChangeDir()
     {
         var lookValue=look.ReadValue<Vector2>();
-        transform.Rotate(0,lookValue.x,0);
+        transform.Rotate(lookValue.y,lookValue.x,0);
     }
 }

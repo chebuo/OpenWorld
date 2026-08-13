@@ -4,6 +4,8 @@ using Cysharp.Threading.Tasks;
 using System.Threading.Tasks;
 using UnityEditor.Callbacks;
 using System.Globalization;
+using DoodleWorld;
+using Cysharp.Threading.Tasks.Triggers;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -11,11 +13,12 @@ public class PlayerManager : MonoBehaviour
     InputAction jump;
     InputAction attack;
     InputAction dig;
-    PlayerState currentState = PlayerState.idle;
+    PlayerState currentState = PlayerState.start;
     PlayerController playerController;
-    TerrainGenerator terrainGenerator;
+    [SerializeField] TerrainGenerator terrainGenerator;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    async void Start()
+    async UniTaskVoid Start()
     {
         move=InputSystem.actions.FindAction("Move");
         jump=InputSystem.actions.FindAction("Jump");
@@ -26,7 +29,9 @@ public class PlayerManager : MonoBehaviour
         attack.Enable();
         dig.Enable();
         playerController = this.GetComponent<PlayerController>();
-        await StateLoop();
+
+        _ = StateLoop();
+        _ = InputLoop();
     }
 
     async UniTask StateLoop()
@@ -36,6 +41,9 @@ public class PlayerManager : MonoBehaviour
             var state = currentState;
             switch (state)
             {
+                case PlayerState.start:
+                    await Init();
+                    break;
                 case PlayerState.idle:
                     await IdleLoop();
                     break;
@@ -52,6 +60,34 @@ public class PlayerManager : MonoBehaviour
                     break;
             }
             await UniTask.WaitUntil(()=>currentState!=state);
+        }
+    }
+
+    public async UniTask Init()
+    {
+        await UniTask.WaitUntil(()=>terrainGenerator.isInit);
+        playerController.Init();
+        ChangeState(PlayerState.idle);
+    }
+
+    async UniTask InputLoop()
+    {
+        while (true)
+        {
+            ParallelInput();
+            await UniTask.Yield();
+        }
+    }
+
+    void ParallelInput()
+    {
+        if (jump.WasPressedThisFrame())
+        {
+            playerController.Jump();
+        }
+        if (dig.WasPressedThisFrame())
+        {
+            playerController.MoveDig(3f);
         }
     }
 
@@ -81,15 +117,15 @@ public class PlayerManager : MonoBehaviour
         {
             ChangeState(PlayerState.walking);
         }
-        else if (jump.triggered)
+        if (jump.triggered)
         {
             playerController.Jump();
         }
-        else if (dig.triggered)
+        if (dig.triggered)
         {
-            playerController.Dig(3f);
+            playerController.MoveDig(3f);
         }
-        else if (attack.triggered)
+        if (attack.triggered)
         {
             ChangeState(PlayerState.attacking);
         }
@@ -172,7 +208,30 @@ public class PlayerManager : MonoBehaviour
     async UniTask DeadLoop()
     {
         Debug.Log("You Dead Loop");
+        OnEnterDead();
+        while (currentState == PlayerState.dead)
+        {
+            OnDead();
+            await UniTask.Yield();
+        }
+        OnExitDead();
+    }
 
+    void OnEnterDead()
+    {
+        Debug.Log("Enter Dead");
+    }
+
+    void OnDead()
+    {
+        Debug.Log("You Dead");
+        ChangeState(PlayerState.idle);
+    }
+
+    void OnExitDead()
+    {
+        Debug.Log("Exit Dead");
+        
     }
 
     public void ChangeState(PlayerState state)
