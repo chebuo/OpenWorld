@@ -655,10 +655,10 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!114 &1204259527
 MonoBehaviour:
@@ -675,6 +675,7 @@ MonoBehaviour:
   moveSpeed: 10
   jumpForce: 5
   attackForce: 5
+  cameraTransform: {fileID: 1611441430}
   terrainGenerator: {fileID: 1812782397}
 --- !u!114 &1204259528
 MonoBehaviour:
@@ -688,6 +689,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf32cd268d4e51941bd3b6bdc5ec282c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerManager
+  terrainGenerator: {fileID: 1812782397}
 --- !u!1 &1611441427
 GameObject:
   m_ObjectHideFlags: 0
@@ -973,14 +975,9 @@ MonoBehaviour:
   _gridScale: 1
   _triangleBudget: 524288
   _targetValue: 0
-  _basinRadius: 300
-  _wallStartRadius: 200
-  _wallHeight: 0
-  _wallSteepness: 6
-  _wave: 0.001
-  _peak: 1
   _densityCompute: {fileID: 7200000, guid: dc5b03a418c0eea4e892e8ccb845f5c8, type: 3}
   _builderCompute: {fileID: 7200000, guid: 9f19ed91e8aa34430ac0ea80fb20eead, type: 3}
+  isInit: 0
 --- !u!4 &1812782398
 Transform:
   m_ObjectHideFlags: 0
@@ -1137,9 +1134,9 @@ MonoBehaviour:
   TargetOffset: {x: 0, y: 0, z: 0}
   TrackerSettings:
     BindingMode: 3
-    PositionDamping: {x: 1, y: 1, z: 1}
+    PositionDamping: {x: 0.3, y: 3, z: 0.3}
     AngularDampingMode: 0
-    RotationDamping: {x: 1, y: 1, z: 1}
+    RotationDamping: {x: 0.1, y: 0.1, z: 0.1}
     QuaternionDamping: 1
   OrbitStyle: 0
   Radius: 5
