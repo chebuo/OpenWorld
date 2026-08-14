@@ -73,11 +73,7 @@ public class PlayerController : MonoBehaviour
             Debug.LogError("TerrainGenerator null");
             return;
         }
-
         Vector3 digPos = transform.position + transform.forward;
-
-        Debug.Log($"Dig位置: {digPos}");
-
         terrainGenerator.Dig(digPos, radius);
     }
 
