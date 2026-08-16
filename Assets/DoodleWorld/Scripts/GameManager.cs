@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Cysharp.Threading.Tasks;
 using DoodleWorld;
-using UnityEngine.PlayerLoop;
 
 namespace DoodleWorld
 {

@@ -1,35 +1,39 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] int HP;
     [SerializeField] float moveSpeed = 5f;
-    [SerializeField] float jumpForce = 5f;
     [SerializeField] float attackForce = 5f;
 
     InputAction move;
-    InputAction jump;
     InputAction attack;
     InputAction dig;
     InputAction look;
 
     [SerializeField] Transform cameraTransform;
+    public List<GameObject> itemList=new List<GameObject>();
 
+    [SerializeField] PlayerData playerData;
     Rigidbody rb;
     [SerializeField]TerrainGenerator terrainGenerator;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         move=InputSystem.actions.FindAction("Move");
-        jump=InputSystem.actions.FindAction("Jump");
         attack=InputSystem.actions.FindAction("Attack");
         dig=InputSystem.actions.FindAction("Dig");
         look=InputSystem.actions.FindAction("Look");
         move.Enable();
-        jump.Enable();
         attack.Enable();
         look.Enable();
         rb=this.GetComponent<Rigidbody>();
+
+        HP=playerData.HP;
+        moveSpeed=playerData.moveSpeed;
+        attackForce=playerData.attackForce;
     }
 
     void Update()
@@ -50,13 +54,6 @@ public class PlayerController : MonoBehaviour
         cameraTransform.right * moveValue.x;
 
         rb.linearVelocity =moveDir * moveSpeed;
-    }
-
-
-
-    public void Jump()
-    {
-        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
 
     public void Attack()

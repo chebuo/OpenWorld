@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b55ef290e8388b4691535e9b69367ad, type: 3}
   m_Name: PlayerData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerData
-  playerParams:
-  - HP: 0
-    power: 0
-    moveSpeed: 0
+  HP: 10
+  attackForce: 5
+  moveSpeed: 5

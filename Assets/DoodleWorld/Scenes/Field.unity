@@ -326,9 +326,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1caa9fe5ab892cc478dd8e62481a0030, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemGenerator
-  _itemCount: 30
+  _itemCount: 60
   _minDepth: 0
-  _maxDepth: 30
+  _maxDepth: 60
   itemPrefabs:
   - {fileID: 4580993248233325915, guid: 18bc6b2a747d07941a0a240c84bd3c6e, type: 3}
   terrainGenerator: {fileID: 1812782397}
@@ -769,10 +769,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcd3cd79c84562142aef07fa8b2f7ae5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  HP: 5
   moveSpeed: 10
-  jumpForce: 5
   attackForce: 5
   cameraTransform: {fileID: 1611441430}
+  playerData: {fileID: 11400000, guid: 948a19495d7a285419a3fa19bdd76071, type: 2}
   terrainGenerator: {fileID: 1812782397}
 --- !u!114 &1204259528
 MonoBehaviour:
@@ -1547,10 +1548,10 @@ SceneRoots:
   - {fileID: 1941143124}
   - {fileID: 1204259525}
   - {fileID: 2029183834}
+  - {fileID: 1812782398}
   - {fileID: 1611441430}
   - {fileID: 1907874947}
   - {fileID: 1010518848}
-  - {fileID: 1812782398}
   - {fileID: 63399011}
   - {fileID: 433023152}
   - {fileID: 144130672}

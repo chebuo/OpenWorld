@@ -10,7 +10,6 @@ using Cysharp.Threading.Tasks.Triggers;
 public class PlayerManager : MonoBehaviour
 {
     InputAction move;
-    InputAction jump;
     InputAction attack;
     InputAction dig;
     PlayerState currentState = PlayerState.idle;
@@ -21,11 +20,9 @@ public class PlayerManager : MonoBehaviour
     async UniTaskVoid Start()
     {
         move=InputSystem.actions.FindAction("Move");
-        jump=InputSystem.actions.FindAction("Jump");
         attack=InputSystem.actions.FindAction("Attack");
         dig=InputSystem.actions.FindAction("Dig");
         move.Enable();
-        jump.Enable();
         attack.Enable();
         dig.Enable();
         playerController = this.GetComponent<PlayerController>();
@@ -78,10 +75,6 @@ public class PlayerManager : MonoBehaviour
 
     void ParallelInput()
     {
-        if (jump.WasPressedThisFrame())
-        {
-            playerController.Jump();
-        }
         if (dig.WasPressedThisFrame())
         {
             playerController.MoveDig(3f);
@@ -113,14 +106,6 @@ public class PlayerManager : MonoBehaviour
         if (moveValue != Vector2.zero)
         {
             ChangeState(PlayerState.walking);
-        }
-        if (jump.triggered)
-        {
-            playerController.Jump();
-        }
-        if (dig.triggered)
-        {
-            playerController.MoveDig(3f);
         }
         if (attack.triggered)
         {
