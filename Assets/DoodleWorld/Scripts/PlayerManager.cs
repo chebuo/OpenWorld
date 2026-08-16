@@ -13,7 +13,7 @@ public class PlayerManager : MonoBehaviour
     InputAction jump;
     InputAction attack;
     InputAction dig;
-    PlayerState currentState = PlayerState.start;
+    PlayerState currentState = PlayerState.idle;
     PlayerController playerController;
     [SerializeField] TerrainGenerator terrainGenerator;
 
@@ -41,9 +41,6 @@ public class PlayerManager : MonoBehaviour
             var state = currentState;
             switch (state)
             {
-                case PlayerState.start:
-                    await Init();
-                    break;
                 case PlayerState.idle:
                     await IdleLoop();
                     break;

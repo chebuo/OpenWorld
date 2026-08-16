@@ -2,11 +2,14 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Cysharp.Threading.Tasks;
 using DoodleWorld;
+using UnityEngine.PlayerLoop;
 
 namespace DoodleWorld
 {
     public class GameManager : MonoBehaviour
     {
+        [SerializeField]BattleManager battleManager;
+
         public static GameManager Instance { get; private set; }
 
         public GameState currentState { get; private set; } = GameState.Idle;
@@ -25,6 +28,7 @@ namespace DoodleWorld
 
         private async void Start()
         {
+            UpdateStateFromScene();
             await GameLoop();
         }
 
@@ -47,7 +51,8 @@ namespace DoodleWorld
 
         public async UniTask StartGame()
         {
-            MoveScene("Field");
+            await battleManager.Init();
+            //await battleManager.BattleLoop();
             Debug.Log("Game Started");
 
             await UniTask.WaitUntil(()=>currentState==GameState.GameOver);
@@ -65,6 +70,22 @@ namespace DoodleWorld
             MoveScene("Title");
             Debug.Log("Game Ended");
             await UniTask.WaitUntil(()=>currentState==GameState.Title);
+        }
+
+        public void UpdateStateFromScene()
+        {
+            switch (SceneManager.GetActiveScene().name)
+            {
+                case "Title":
+                    ChangeState(GameState.Title);
+                    break;
+                case "Field":
+                    ChangeState(GameState.Playing);
+                    break;
+                case "Result":
+                    ChangeState(GameState.GameOver);
+                    break;
+            }
         }
 
         public void ChangeState(GameState state)
