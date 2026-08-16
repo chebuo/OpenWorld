@@ -1,5 +1,6 @@
 using UnityEngine;
 using MarchingCubes;
+using Unity.Mathematics;
 
 sealed class TerrainGenerator : MonoBehaviour
 {
@@ -37,6 +38,20 @@ sealed class TerrainGenerator : MonoBehaviour
         BuildMesh();
 
         isInit=true;
+    }
+
+    public bool IsSolid(int x,int y,int z)
+    {
+        return _density.Get(x,y,z)>_targetValue;
+    }
+
+    public Vector3Int Dimensions=>_dimensions;
+
+    public float GridScale=>_gridScale;
+
+    public Vector3 GetVoxelLocalPosition(int x,int y,int z)
+    {
+        return (new Vector3(x+0.5f,y+0.5f,z+0.5f)-(Vector3)_dimensions*0.5f)*_gridScale;
     }
 
     void GenerateGPU()
