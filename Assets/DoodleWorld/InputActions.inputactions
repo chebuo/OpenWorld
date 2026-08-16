@@ -16,15 +16,6 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Jump",
-                    "type": "Button",
-                    "id": "b89b224b-dcde-4714-a212-d33d97394db0",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Pause",
                     "type": "Button",
                     "id": "4e5e8c2e-d301-4ad0-990d-45bee4a15cc0",
@@ -139,17 +130,6 @@
                 },
                 {
                     "name": "",
-                    "id": "d7fc505f-5976-447c-a891-97d0f650b4d8",
-                    "path": "<Keyboard>/space",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Jump",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "0f54c00c-53de-41da-99de-75d10c0aded4",
                     "path": "",
                     "interactions": "",
@@ -194,8 +174,41 @@
                 },
                 {
                     "name": "",
+                    "id": "4b0da425-9f99-431a-a9ff-de11cd57de68",
+                    "path": "<Gamepad>/rightStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "4b2b0ce7-e316-4468-b051-b1244bdca78f",
                     "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Dig",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "82f01cf2-e9ab-4822-bc37-af9133fa2a9c",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Dig",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9cf7f457-eebd-4d3c-96f9-b0f512ac8d0a",
+                    "path": "<Gamepad>/leftShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
