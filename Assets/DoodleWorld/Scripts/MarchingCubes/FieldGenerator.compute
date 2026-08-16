@@ -2,17 +2,6 @@
 
 uint3 Dims;
 
-float scale;
-float wave;
-float peak;
-float width;
-float height;
-
-float basinRadius;
-float wallStartRadius;
-float wallHeight;
-float wallSteepness;
-
 RWStructuredBuffer<float> Voxels;
 
 [numthreads(8,8,8)]
