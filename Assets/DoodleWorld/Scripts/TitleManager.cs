@@ -14,20 +14,6 @@ public class TitleManager : MonoBehaviour
     public TitleState currentState{get; private set;}=TitleState.title;
     public GameMode gameMode{get;private set;}
     
-    private static TitleManager Instance;
-
-    void Awake()
-        {
-            if (Instance == null)
-            {
-                Instance = this;
-                DontDestroyOnLoad(gameObject);
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
-        }
     public async UniTask TitleLoop()
     {
         while (isTitle)
