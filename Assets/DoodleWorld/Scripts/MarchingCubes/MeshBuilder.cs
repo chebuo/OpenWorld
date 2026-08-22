@@ -58,7 +58,7 @@ sealed class MeshBuilder : System.IDisposable
         // PhysX の空間構造ツリー (BVH) を強制的に全領域で再構築
         if (_colliderMesh != null && _colliderMesh.vertexCount > 0)
         {
-            Physics.BakeMesh(_colliderMesh.GetInstanceID(), false);
+            Physics.BakeMesh(_colliderMesh.GetEntityId(), false);
         }
 
         collider.cookingOptions = MeshColliderCookingOptions.EnableMeshCleaning
