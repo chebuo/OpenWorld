@@ -4,6 +4,6 @@ using UnityEngine;
 public class PlayerData : ScriptableObject
 {
         public int HP;
-        public float attackForce;
+        public int attackForce;
         public float moveSpeed;
 }

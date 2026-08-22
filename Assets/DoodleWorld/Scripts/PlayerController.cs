@@ -1,39 +1,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Cysharp.Threading.Tasks;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] int HP;
-    [SerializeField] float moveSpeed = 5f;
-    [SerializeField] float attackForce = 5f;
-
-    InputAction move;
-    InputAction attack;
-    InputAction dig;
     InputAction look;
 
     [SerializeField] Transform cameraTransform;
+    Collider[] hitColliders= new Collider[10];
+    [SerializeField]LayerMask playerLayer;
     public List<GameObject> itemList=new List<GameObject>();
 
-    [SerializeField] PlayerData playerData;
     Rigidbody rb;
     [SerializeField]TerrainGenerator terrainGenerator;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        move=InputSystem.actions.FindAction("Move");
-        attack=InputSystem.actions.FindAction("Attack");
-        dig=InputSystem.actions.FindAction("Dig");
         look=InputSystem.actions.FindAction("Look");
-        move.Enable();
-        attack.Enable();
         look.Enable();
         rb=this.GetComponent<Rigidbody>();
-
-        HP=playerData.HP;
-        moveSpeed=playerData.moveSpeed;
-        attackForce=playerData.attackForce;
     }
 
     void Update()
@@ -41,29 +27,28 @@ public class PlayerController : MonoBehaviour
         ChangeDir();
     }
 
-    public void Init()
+    public async UniTask Init()
     {
+        await UniTask.WaitUntil(()=>terrainGenerator.isInit);
         terrainGenerator.Dig(transform.position , 3f);
     }
 
-    public void Move()
+    public void Move(Vector2 moveValue,float speed)
     {
-        var moveValue = move.ReadValue<Vector2>();
         Vector3 moveDir =
         cameraTransform.forward * moveValue.y +
         cameraTransform.right * moveValue.x;
 
-        rb.linearVelocity =moveDir * moveSpeed;
+        rb.linearVelocity =moveDir * speed;
     }
 
-    public void Attack()
+    public void Attack(int force)
     {
-        // Implementation for attack logic
+        DamageArea(transform.position, 1f)?.TakeDamage(force);
     }
 
-    public void MoveDig(float radius)
+    public void MoveDig(float radius,int damage)
     {
-        Debug.Log("Controller: Dig 呼ばれた");
 
         if (terrainGenerator == null)
         {
@@ -72,6 +57,19 @@ public class PlayerController : MonoBehaviour
         }
         Vector3 digPos = transform.position + transform.forward*0.1f;
         terrainGenerator.Dig(digPos, radius);
+        DamageArea(digPos, radius)?.TakeDamage(damage);
+    }
+    public IDamageable DamageArea(Vector3 pos,float radius)
+    {
+        int hitCount=Physics.OverlapSphereNonAlloc(pos,radius,hitColliders,playerLayer);
+        for(int i = 0; i < hitCount; i++)
+        {
+            Collider hit=hitColliders[i];
+            IDamageable damageable=hit.GetComponent<IDamageable>();
+            if(damageable==null)continue;
+            return damageable;
+        }
+        return null;
     }
 
     public void ChangeDir()

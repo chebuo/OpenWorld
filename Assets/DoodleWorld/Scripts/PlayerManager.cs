@@ -1,40 +1,47 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Cysharp.Threading.Tasks;
-using System.Threading.Tasks;
-using UnityEditor.Callbacks;
-using System.Globalization;
-using DoodleWorld;
-using Cysharp.Threading.Tasks.Triggers;
 
-public class PlayerManager : MonoBehaviour
+public class PlayerManager : MonoBehaviour, IDamageable
 {
+    [SerializeField]int HP=20;
+    [SerializeField]float moveSpeed=5f;
+    [SerializeField]int attackForce=5;
+    [SerializeField]float digRadius=3f;
+
     InputAction move;
     InputAction attack;
     InputAction dig;
     PlayerState currentState = PlayerState.idle;
+    public bool isWaitInput=false;
     PlayerController playerController;
-    [SerializeField] TerrainGenerator terrainGenerator;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    async UniTaskVoid Start()
+    [SerializeField] PlayerData playerData;
+    void Awake()
     {
+        playerController = this.GetComponent<PlayerController>();
         move=InputSystem.actions.FindAction("Move");
         attack=InputSystem.actions.FindAction("Attack");
         dig=InputSystem.actions.FindAction("Dig");
         move.Enable();
         attack.Enable();
         dig.Enable();
-        playerController = this.GetComponent<PlayerController>();
-
+        HP=playerData.HP;
+        moveSpeed=playerData.moveSpeed;
+        attackForce=playerData.attackForce;
+    }
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
         _ = StateLoop();
         _ = InputLoop();
     }
 
     async UniTask StateLoop()
     {
-        while (true)
+        await UniTask.WaitUntil(()=>isWaitInput);
+        while (isWaitInput)
         {
+            await UniTask.WaitUntil(()=>isWaitInput);
             var state = currentState;
             switch (state)
             {
@@ -59,15 +66,16 @@ public class PlayerManager : MonoBehaviour
 
     public async UniTask Init()
     {
-        await UniTask.WaitUntil(()=>terrainGenerator.isInit);
-        playerController.Init();
+        await playerController.Init();
         ChangeState(PlayerState.idle);
     }
 
     async UniTask InputLoop()
     {
-        while (true)
+        await UniTask.WaitUntil(()=>isWaitInput);
+        while (isWaitInput)
         {
+            await UniTask.WaitUntil(()=>isWaitInput);
             ParallelInput();
             await UniTask.Yield();
         }
@@ -77,7 +85,7 @@ public class PlayerManager : MonoBehaviour
     {
         if (dig.WasPressedThisFrame())
         {
-            playerController.MoveDig(3f);
+            playerController.MoveDig(digRadius,attackForce);
         }
     }
 
@@ -85,7 +93,6 @@ public class PlayerManager : MonoBehaviour
 
     async UniTask IdleLoop()
     {
-        Debug.Log("Idle Loop");
         OnEnterIdle();
         while (currentState == PlayerState.idle)
         {
@@ -97,7 +104,7 @@ public class PlayerManager : MonoBehaviour
 
     void OnEnterIdle()
     {
-        Debug.Log("Enter Idle");
+        //Debug.Log("Enter Idle");
     }
 
     void OnIdle()
@@ -115,14 +122,13 @@ public class PlayerManager : MonoBehaviour
 
     void OnExitIdle()
     {
-        Debug.Log("Exit Idle");
+        //Debug.Log("Exit Idle");
     }
 
     //Walking
 
     async UniTask WalkingLoop()
     {
-        Debug.Log("Walking Loop");
         OnEnterWalking();
         while (currentState == PlayerState.walking)
         {
@@ -134,7 +140,7 @@ public class PlayerManager : MonoBehaviour
 
     void OnEnterWalking()
     {
-        Debug.Log("Enter Walking");
+        //Debug.Log("Enter Walking");
     }
 
     void OnWalking()
@@ -149,13 +155,12 @@ public class PlayerManager : MonoBehaviour
             ChangeState(PlayerState.attacking);
             return;
         }
-        playerController.Move();
-        Debug.Log("Walking");
+        playerController.Move(moveValue, moveSpeed);
     }
 
     void OnExitWalking()
     {
-        Debug.Log("Exit Walking");
+        //Debug.Log("Exit Walking");
     }
 
     //Attacking
@@ -179,7 +184,7 @@ public class PlayerManager : MonoBehaviour
 
     void OnAttacking()
     {
-        playerController.Attack();
+        //playerController.Attack(attackForce);
     }
 
     void OnExitAttacking()
@@ -189,7 +194,6 @@ public class PlayerManager : MonoBehaviour
 
     async UniTask DeadLoop()
     {
-        Debug.Log("You Dead Loop");
         OnEnterDead();
         while (currentState == PlayerState.dead)
         {
@@ -206,7 +210,6 @@ public class PlayerManager : MonoBehaviour
 
     void OnDead()
     {
-        Debug.Log("You Dead");
         ChangeState(PlayerState.idle);
     }
 
@@ -214,6 +217,16 @@ public class PlayerManager : MonoBehaviour
     {
         Debug.Log("Exit Dead");
         
+    }
+
+    public void TakeDamage(int damage)
+    {
+        HP -= damage;
+        Debug.Log($"Player took {damage} damage. Current HP: {HP}");
+        if (HP <= 0)
+        {
+            ChangeState(PlayerState.dead);
+        }
     }
 
     public void ChangeState(PlayerState state)
