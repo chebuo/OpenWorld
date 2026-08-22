@@ -376,7 +376,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 390990761af2a584c87d79c24b949910, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DoodleWorld.GameManager
-  battleManager: {fileID: 433023151}
 --- !u!4 &144130672
 Transform:
   m_ObjectHideFlags: 0
@@ -421,8 +420,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10095c21fa910704597596c48aac111d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleManager
-  playerManager: {fileID: 1204259528}
-  itemGenerator: {fileID: 63399010}
+  battleTime: 5
 --- !u!4 &433023152
 Transform:
   m_ObjectHideFlags: 0
@@ -433,6 +431,55 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &527614023
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 527614025}
+  - component: {fileID: 527614024}
+  m_Layer: 0
+  m_Name: TitleManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &527614024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 527614023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59fcb64cf12f58740a889b82559e2031, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TitleManager
+  titleScreen: {fileID: 0}
+  settingScreen: {fileID: 0}
+  modeScreen: {fileID: 0}
+  playerScreen: {fileID: 0}
+  startScreen: {fileID: 0}
+--- !u!4 &527614025
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 527614023}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.50353, z: -4.76858}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -769,11 +816,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcd3cd79c84562142aef07fa8b2f7ae5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  HP: 5
-  moveSpeed: 10
-  attackForce: 5
   cameraTransform: {fileID: 1611441430}
-  playerData: {fileID: 11400000, guid: 948a19495d7a285419a3fa19bdd76071, type: 2}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  itemList: []
   terrainGenerator: {fileID: 1812782397}
 --- !u!114 &1204259528
 MonoBehaviour:
@@ -787,7 +834,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf32cd268d4e51941bd3b6bdc5ec282c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerManager
-  terrainGenerator: {fileID: 1812782397}
+  HP: 20
+  moveSpeed: 5
+  attackForce: 5
+  digRadius: 3
+  isWaitInput: 0
+  playerData: {fileID: 11400000, guid: 948a19495d7a285419a3fa19bdd76071, type: 2}
 --- !u!1 &1611441427
 GameObject:
   m_ObjectHideFlags: 0
@@ -1553,5 +1605,6 @@ SceneRoots:
   - {fileID: 1907874947}
   - {fileID: 1010518848}
   - {fileID: 63399011}
+  - {fileID: 527614025}
   - {fileID: 433023152}
   - {fileID: 144130672}
