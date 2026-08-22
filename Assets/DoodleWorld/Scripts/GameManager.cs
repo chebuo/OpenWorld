@@ -7,7 +7,8 @@ namespace DoodleWorld
 {
     public class GameManager : MonoBehaviour
     {
-        [SerializeField]BattleManager battleManager;
+        TitleManager titleManager;
+        BattleManager battleManager;
 
         public static GameManager Instance { get; private set; }
 
@@ -23,38 +24,53 @@ namespace DoodleWorld
             {
                 Destroy(gameObject);
             }
+            UpdateStateFromScene();
+            
         }
 
         private async void Start()
         {
-            UpdateStateFromScene();
             await GameLoop();
+            Debug.Log(currentState);
         }
 
         public async UniTask GameLoop()
         {
             while (true)
             {
-                await TitleLoop();
-                await StartGame();
-                await EndGame();
+                switch (currentState)
+                {
+                    case GameState.Title:
+                        await TitleScreen();
+                        break;
+
+                    case GameState.Playing:
+                        await StartGame();
+                        break;
+
+                    case GameState.GameOver:
+                        await EndGame();
+                        break;
+                }
             }
         }
 
-        public async UniTask TitleLoop()
+        public async UniTask TitleScreen()
         {
-            Debug.Log("Title Screen");
-
-            await UniTask.WaitUntil(()=>currentState==GameState.Playing);
+            await MoveScene("Title");
+            titleManager=FindFirstObjectByType<TitleManager>();
+            await titleManager.TitleLoop();
+            currentState=GameState.Playing;
         }
 
         public async UniTask StartGame()
         {
+            await MoveScene("Field");
+            battleManager=FindFirstObjectByType<BattleManager>();
             await battleManager.Init();
-            //await battleManager.BattleLoop();
-            Debug.Log("Game Started");
-
-            await UniTask.WaitUntil(()=>currentState==GameState.GameOver);
+            await battleManager.BattleLoop();
+            await battleManager.EndBattle();
+            currentState=GameState.GameOver;
         }
 
         public void PauseGame()
@@ -66,7 +82,7 @@ namespace DoodleWorld
 
         public async UniTask EndGame()
         {
-            MoveScene("Title");
+            await MoveScene("Result");
             Debug.Log("Game Ended");
             await UniTask.WaitUntil(()=>currentState==GameState.Title);
         }
@@ -93,9 +109,9 @@ namespace DoodleWorld
             currentState = state;
         }
 
-        public void MoveScene(string sceneName)
+        public async UniTask MoveScene(string sceneName)
         {
-            SceneManager.LoadScene(sceneName);
+            await SceneManager.LoadSceneAsync(sceneName);
         }
     }
 }
