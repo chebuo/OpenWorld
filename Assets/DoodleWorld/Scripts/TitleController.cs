@@ -1,24 +1,51 @@
 using UnityEngine;
-using DoodleWorld;
 
 public class TitleController : MonoBehaviour
 {
-    public static GameManager Instance { get; private set; }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [SerializeField]TitleManager titleManager;
+
+    TitleState lastState;
+    public void OnClickTitleButton()
     {
-        Instance = GameManager.Instance;
+        lastState=TitleState.title;
+        titleManager.ChangeState(TitleState.modeSelect);
+        Debug.Log(titleManager.currentState);
     }
 
-    // Update is called once per frame
-    void Update()
+    public void OnClickSettingsButton()
     {
-        
+        titleManager.ChangeState(TitleState.settings);
     }
 
+    public void OnClickSingleButton()
+    {
+        lastState=TitleState.modeSelect;
+        titleManager.SelectMode(GameMode.single);
+        titleManager.ChangeState(TitleState.start);
+    }
+
+    public void OnClickVersusButton()
+    {
+        lastState=TitleState.modeSelect;
+        titleManager.SelectMode(GameMode.versus);
+        titleManager.ChangeState(TitleState.start);
+    }
+
+    public void OnClickOnlineButton()
+    {
+        lastState=TitleState.modeSelect;
+        titleManager.SelectMode(GameMode.online);
+        titleManager.ChangeState(TitleState.start);
+    }
+    
     public void OnClickStartButton()
     {
-        Instance.ChangeState(GameState.Playing);
+        titleManager.ChangeState(TitleState.end);
+    }
+
+    public void OnClickReturnButton()
+    {
+        titleManager.ChangeState(lastState);
     }
 
     public void OnClickQuitButton()
