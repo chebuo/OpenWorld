@@ -9,6 +9,7 @@ namespace DoodleWorld
     {
         TitleManager titleManager;
         BattleManager battleManager;
+        [SerializeField]BattleSettings battleSettings = new BattleSettings();
 
         public static GameManager Instance { get; private set; }
 
@@ -25,7 +26,6 @@ namespace DoodleWorld
                 Destroy(gameObject);
             }
             UpdateStateFromScene();
-            
         }
 
         private async void Start()
@@ -60,15 +60,18 @@ namespace DoodleWorld
             await MoveScene("Title");
             titleManager=FindFirstObjectByType<TitleManager>();
             await titleManager.TitleLoop();
+            battleSettings.gameMode=titleManager.gameMode;
+            Debug.Log($"Game Mode: {battleSettings.gameMode}");
             currentState=GameState.Playing;
         }
 
         public async UniTask StartGame()
         {
+            Debug.Log("Game Started");
             await MoveScene("Field");
             battleManager=FindFirstObjectByType<BattleManager>();
-            await battleManager.Init();
-            await battleManager.BattleLoop();
+            await battleManager.Init(battleSettings);
+            await battleManager.BattleLoop(battleSettings.gameMode);
             await battleManager.EndBattle();
             currentState=GameState.GameOver;
         }
