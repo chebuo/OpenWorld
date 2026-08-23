@@ -132,6 +132,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         OnEnterWalking();
         while (currentState == PlayerState.walking)
         {
+            Debug.Log("Walking Loop");
             OnWalking();
             await UniTask.Yield();
         }
@@ -217,6 +218,18 @@ public class PlayerManager : MonoBehaviour, IDamageable
     {
         Debug.Log("Exit Dead");
         
+    }
+
+    public void StartInput()
+    {
+        isWaitInput=true;
+        ChangeState(PlayerState.idle);
+    }
+
+    public void StopInput()
+    {
+        isWaitInput=false;
+        ChangeState(PlayerState.idle);
     }
 
     public void TakeDamage(int damage)

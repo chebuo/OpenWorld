@@ -12,7 +12,7 @@ public class TitleManager : MonoBehaviour
     bool isTitle=true;
 
     public TitleState currentState{get; private set;}=TitleState.title;
-    public GameMode gameMode{get;private set;}
+    public GameMode gameMode{get;private set;}=GameMode.versus;
     
     public async UniTask TitleLoop()
     {
@@ -94,7 +94,6 @@ public class TitleManager : MonoBehaviour
     public void SelectMode(GameMode mode)
     {
         gameMode=mode;
-        ChangeState(TitleState.playerSelect);
     }
 
     public void ChangeState(TitleState state)
