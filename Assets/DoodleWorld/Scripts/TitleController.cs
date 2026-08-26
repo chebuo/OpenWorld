@@ -14,6 +14,7 @@ public class TitleController : MonoBehaviour
 
     public void OnClickSettingsButton()
     {
+        lastState=titleManager.currentState;
         titleManager.ChangeState(TitleState.settings);
     }
 
@@ -28,7 +29,7 @@ public class TitleController : MonoBehaviour
     {
         lastState=TitleState.modeSelect;
         titleManager.SelectMode(GameMode.versus);
-        titleManager.ChangeState(TitleState.start);
+        titleManager.ChangeState(TitleState.playerSelect);
     }
 
     public void OnClickOnlineButton()

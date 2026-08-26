@@ -1,5 +1,7 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Cysharp.Threading.Tasks;
+using DoodleWorld;
 
 public class TitleManager : MonoBehaviour
 {
@@ -12,7 +14,9 @@ public class TitleManager : MonoBehaviour
     bool isTitle=true;
 
     public TitleState currentState{get; private set;}=TitleState.title;
-    public GameMode gameMode{get;private set;}=GameMode.versus;
+    public BattleSettings battleSettings=new BattleSettings();
+
+    [SerializeField]DeviceManager deviceManager;
     
     public async UniTask TitleLoop()
     {
@@ -93,12 +97,32 @@ public class TitleManager : MonoBehaviour
 
     public void SelectMode(GameMode mode)
     {
-        gameMode=mode;
+        battleSettings.gameMode=mode;
     }
 
     public void ChangeState(TitleState state)
     {
         if(currentState==state)return;
         currentState=state;
+    }
+
+    public void SetPlayerCount(int count)
+    {
+        battleSettings.playerCount=count;
+    }
+
+    public InputDevice[] GetDevice()
+    {
+        InputDevice[] devices = new InputDevice[battleSettings.playerCount];
+        for(int i=0;i<battleSettings.playerCount;i++)
+        {
+            devices[i] = deviceManager.GetDevice(i);
+        }
+        return devices;
+    }
+
+    public void SetPlayerCount()
+    {
+        battleSettings.playerCount=deviceManager.GetPlayerCount();
     }
 }

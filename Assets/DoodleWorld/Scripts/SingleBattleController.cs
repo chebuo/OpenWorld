@@ -8,7 +8,7 @@ public class SingleBattleController : MonoBehaviour
     public async UniTask Init()
     {
         playerManager=FindFirstObjectByType<PlayerManager>();
-        await playerManager.Init();
+        //await playerManager.Init();
         playerManager.isWaitInput=false;
     }
 }

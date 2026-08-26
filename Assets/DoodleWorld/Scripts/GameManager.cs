@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using Cysharp.Threading.Tasks;
 using DoodleWorld;
@@ -8,8 +10,10 @@ namespace DoodleWorld
     public class GameManager : MonoBehaviour
     {
         TitleManager titleManager;
+        DeviceManager deviceManager;
         BattleManager battleManager;
         [SerializeField]BattleSettings battleSettings = new BattleSettings();
+        private Dictionary<int, PlayerJoinData> playerDevices = new();
 
         public static GameManager Instance { get; private set; }
 
@@ -59,8 +63,10 @@ namespace DoodleWorld
         {
             await MoveScene("Title");
             titleManager=FindFirstObjectByType<TitleManager>();
+            deviceManager=FindFirstObjectByType<DeviceManager>();
             await titleManager.TitleLoop();
-            battleSettings.gameMode=titleManager.gameMode;
+            battleSettings=titleManager.battleSettings;
+            playerDevices=deviceManager.GetPlayerDevices();
             Debug.Log($"Game Mode: {battleSettings.gameMode}");
             currentState=GameState.Playing;
         }
@@ -70,7 +76,7 @@ namespace DoodleWorld
             Debug.Log("Game Started");
             await MoveScene("Field");
             battleManager=FindFirstObjectByType<BattleManager>();
-            await battleManager.Init(battleSettings);
+            await battleManager.Init(battleSettings, playerDevices);
             await battleManager.BattleLoop(battleSettings.gameMode);
             await battleManager.EndBattle();
             currentState=GameState.GameOver;
