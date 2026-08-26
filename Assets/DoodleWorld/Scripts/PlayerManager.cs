@@ -9,9 +9,16 @@ public class PlayerManager : MonoBehaviour, IDamageable
     [SerializeField]int attackForce=5;
     [SerializeField]float digRadius=3f;
 
-    InputAction move;
-    InputAction attack;
-    InputAction dig;
+    [SerializeField] private InputActionAsset inputActionAsset;
+
+    private InputActionAsset playerInputActions;
+    private int playerIndex=0;
+    private InputDevice device;
+
+    private InputAction moveAction;
+    private InputAction itemAttackAction;
+    private InputAction digAction;
+
     PlayerState currentState = PlayerState.idle;
     public bool isWaitInput=false;
     PlayerController playerController;
@@ -19,12 +26,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     void Awake()
     {
         playerController = this.GetComponent<PlayerController>();
-        move=InputSystem.actions.FindAction("Move");
-        attack=InputSystem.actions.FindAction("Attack");
-        dig=InputSystem.actions.FindAction("Dig");
-        move.Enable();
-        attack.Enable();
-        dig.Enable();
+        
         HP=playerData.HP;
         moveSpeed=playerData.moveSpeed;
         attackForce=playerData.attackForce;
@@ -64,10 +66,41 @@ public class PlayerManager : MonoBehaviour, IDamageable
         }
     }
 
-    public async UniTask Init()
+    public async UniTask Init(int playerIndex,InputDevice device)
     {
+        this.playerIndex=playerIndex;
+        this.device=device;
         await playerController.Init();
         ChangeState(PlayerState.idle);
+        SetupInput();
+        
+    }
+    private void SetupInput()
+    {
+        // 念のため、以前のActionAssetがあれば破棄
+        if (playerInputActions != null)
+        {
+            playerInputActions.Disable();
+            Destroy(playerInputActions);
+        }
+
+        // Playerごとに独立したInputActionAssetを作る
+        playerInputActions = Instantiate(inputActionAsset);
+
+        // このPlayerのDeviceだけを使う
+        foreach (InputActionMap actionMap in playerInputActions.actionMaps)
+        {
+            actionMap.devices = new[] { device };
+        }
+
+        // Actionを取得
+        moveAction =playerInputActions.FindAction("Move");
+
+        itemAttackAction =playerInputActions.FindAction("ItemAttack");
+
+        digAction =playerInputActions.FindAction("Dig");
+
+        Debug.Log($"{playerIndex + 1}P input setup: {device.displayName}");
     }
 
     async UniTask InputLoop()
@@ -83,7 +116,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     void ParallelInput()
     {
-        if (dig.WasPressedThisFrame())
+        if (digAction.WasPressedThisFrame())
         {
             playerController.MoveDig(digRadius,attackForce);
         }
@@ -109,12 +142,12 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     void OnIdle()
     {
-        var moveValue = move.ReadValue<Vector2>();
+        var moveValue = moveAction.ReadValue<Vector2>();
         if (moveValue != Vector2.zero)
         {
             ChangeState(PlayerState.walking);
         }
-        if (attack.triggered)
+        if (itemAttackAction.triggered)
         {
             ChangeState(PlayerState.attacking);
         }
@@ -146,12 +179,12 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     void OnWalking()
     {
-        var moveValue=move.ReadValue<Vector2>();
+        var moveValue=moveAction.ReadValue<Vector2>();
         if (moveValue == Vector2.zero)
         {
             ChangeState(PlayerState.idle);
         }
-        if (attack.triggered)
+        if (itemAttackAction.triggered)
         {
             ChangeState(PlayerState.attacking);
             return;
@@ -222,12 +255,15 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     public void StartInput()
     {
+        if(playerInputActions==null)return;
+        playerInputActions.Enable();
         isWaitInput=true;
         ChangeState(PlayerState.idle);
     }
 
     public void StopInput()
     {
+        playerInputActions?.Disable();
         isWaitInput=false;
         ChangeState(PlayerState.idle);
     }

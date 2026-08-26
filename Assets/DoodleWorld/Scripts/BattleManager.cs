@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Cysharp.Threading.Tasks;
 using DoodleWorld;
 
@@ -14,15 +16,17 @@ namespace DoodleWorld
         VersusBattleController versusBattleController;
         OnlineBattleController onlineBattleController;
         BattleSettings battleSettings;
+        Dictionary<int, PlayerJoinData> playerDevices;
         PlayerManager playerManager;
         ItemGenerator itemGenerator;
 
         int countNumber=3;
         bool isBattle=false;
 
-        public async UniTask Init(BattleSettings battleSettings)
+        public async UniTask Init(BattleSettings battleSettings, Dictionary<int, PlayerJoinData> playerDevices)
         {
             this.battleSettings = battleSettings;
+            this.playerDevices = playerDevices;
             playerManager=FindFirstObjectByType<PlayerManager>();
             itemGenerator=FindFirstObjectByType<ItemGenerator>();
 
@@ -60,7 +64,7 @@ namespace DoodleWorld
             Debug.Log("Versus Mode");
             GameObject versusControllerObj=Instantiate(versusBattleControllerPrefab);
             versusBattleController=versusControllerObj.GetComponent<VersusBattleController>();
-            await versusBattleController.Init(battleSettings);
+            await versusBattleController.Init(battleSettings, playerDevices);
             await UniTask.Yield();
         }
 
