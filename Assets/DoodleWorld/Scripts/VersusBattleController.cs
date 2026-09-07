@@ -10,20 +10,17 @@ public class VersusBattleController : MonoBehaviour
     public async UniTask Init(BattleSettings battleSettings, Dictionary<int, PlayerJoinData> playerDevices)
     {
         int playerCount = Mathf.Clamp(playerDevices.Count, 2, 4);
-        Debug.Log($"Initializing Versus Battle with {playerCount} players");
 
-        for (int i = 0; i < playerManagers.Length; i++)
+        for (int i = 0; i < playerCount; i++)
         {
             if(!playerDevices.TryGetValue(i,out PlayerJoinData joinData))
             {
                 playerManagers[i].gameObject.SetActive(false);
-                Debug.LogWarning($"No PlayerJoinData found for player index {i}");
                 continue;
             }
 
             playerManagers[i].gameObject.SetActive(true);
 
-            Debug.Log($"Initializing Player {i}");
             await playerManagers[i].Init(i,playerDevices[i].Device);
             playerManagers[i].StopInput();
         }

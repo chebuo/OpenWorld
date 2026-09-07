@@ -11,15 +11,15 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     [SerializeField] private InputActionAsset inputActionAsset;
 
-    private InputActionAsset playerInputActions;
+    public InputActionAsset playerInputActions;
     private int playerIndex=0;
-    private InputDevice device;
+    public InputDevice device;
 
     private InputAction moveAction;
     private InputAction itemAttackAction;
     private InputAction digAction;
 
-    PlayerState currentState = PlayerState.idle;
+    [SerializeField]PlayerState currentState = PlayerState.idle;
     public bool isWaitInput=false;
     PlayerController playerController;
     [SerializeField] PlayerData playerData;
@@ -36,6 +36,16 @@ public class PlayerManager : MonoBehaviour, IDamageable
     {
         _ = StateLoop();
         _ = InputLoop();
+    }
+
+    void Update()
+    {
+        var moveValue = moveAction.ReadValue<Vector2>();
+        Debug.Log("moveAction"+moveAction);
+        Debug.Log(
+            $"P{playerIndex + 1} Move: {moveValue} / " +
+            $"Device: {device.displayName}"
+        );
     }
 
     async UniTask StateLoop()
@@ -76,32 +86,51 @@ public class PlayerManager : MonoBehaviour, IDamageable
         
     }
     private void SetupInput()
+{
+    if (playerInputActions != null)
     {
-        // 念のため、以前のActionAssetがあれば破棄
-        if (playerInputActions != null)
-        {
-            playerInputActions.Disable();
-            Destroy(playerInputActions);
-        }
-
-        // Playerごとに独立したInputActionAssetを作る
-        playerInputActions = Instantiate(inputActionAsset);
-
-        // このPlayerのDeviceだけを使う
-        foreach (InputActionMap actionMap in playerInputActions.actionMaps)
-        {
-            actionMap.devices = new[] { device };
-        }
-
-        // Actionを取得
-        moveAction =playerInputActions.FindAction("Move");
-
-        itemAttackAction =playerInputActions.FindAction("ItemAttack");
-
-        digAction =playerInputActions.FindAction("Dig");
-
-        Debug.Log($"{playerIndex + 1}P input setup: {device.displayName}");
+        playerInputActions.Disable();
+        Destroy(playerInputActions);
     }
+
+    playerInputActions = Instantiate(inputActionAsset);
+
+    // 先にDeviceを限定する
+    foreach (InputActionMap actionMap in playerInputActions.actionMaps)
+    {
+        actionMap.devices = new InputDevice[] { device };
+        actionMap.Disable();
+    }
+
+    InputActionMap playerMap = playerInputActions.FindActionMap("Player");
+
+    // Action取得
+    moveAction = playerInputActions.FindAction("Move");
+    itemAttackAction = playerInputActions.FindAction("ItemAttack");
+    digAction = playerInputActions.FindAction("Dig");
+
+    // 必要なActionだけEnable
+    playerMap.Enable();
+    moveAction.Enable();
+    digAction.Enable();
+
+    Debug.Log(
+        $"P{playerIndex + 1} " +
+        $"Device={device.displayName} " +
+        $"ID={device.deviceId} " +
+        $"MoveEnabled={moveAction.enabled}"
+    );
+
+    foreach (var control in moveAction.controls)
+    {
+        Debug.Log(
+            $"P{playerIndex + 1} Move Control: " +
+            $"{control.path} / " +
+            $"Device={control.device.displayName} / " +
+            $"ID={control.device.deviceId}"
+        );
+    }
+}
 
     async UniTask InputLoop()
     {
@@ -137,12 +166,16 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     void OnEnterIdle()
     {
-        //Debug.Log("Enter Idle");
+        Debug.Log("Enter Idle");
     }
 
     void OnIdle()
     {
         var moveValue = moveAction.ReadValue<Vector2>();
+        Debug.Log(
+            $"P{playerIndex + 1} Move: {moveValue} / " +
+            $"Device: {device.displayName}"
+        );
         if (moveValue != Vector2.zero)
         {
             ChangeState(PlayerState.walking);

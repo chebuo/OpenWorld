@@ -5,7 +5,7 @@ public class SingleBattleController : MonoBehaviour
 {
     PlayerManager playerManager;
 
-    public async UniTask Init()
+    public void Init()
     {
         playerManager=FindFirstObjectByType<PlayerManager>();
         //await playerManager.Init();
