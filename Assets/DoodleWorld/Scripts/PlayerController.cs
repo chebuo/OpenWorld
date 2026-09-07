@@ -8,18 +8,21 @@ public class PlayerController : MonoBehaviour
     InputAction look;
 
     [SerializeField] Transform cameraTransform;
-    Collider[] hitColliders= new Collider[10];
-    [SerializeField]LayerMask playerLayer;
-    public List<GameObject> itemList=new List<GameObject>();
+    Collider[] hitColliders = new Collider[10];
+    [SerializeField] LayerMask playerLayer;
+    public List<GameObject> itemList = new List<GameObject>();
 
     Rigidbody rb;
-    [SerializeField]TerrainGenerator terrainGenerator;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    [SerializeField] TerrainGenerator terrainGenerator;
+
     void Start()
     {
-        look=InputSystem.actions.FindAction("Look");
-        look.Enable();
-        rb=this.GetComponent<Rigidbody>();
+        if (InputSystem.actions != null)
+        {
+            look = InputSystem.actions.FindAction("Look");
+            look?.Enable();
+        }
+        rb = GetComponent<Rigidbody>();
     }
 
     void Update()
@@ -29,17 +32,51 @@ public class PlayerController : MonoBehaviour
 
     public async UniTask Init()
     {
-        await UniTask.WaitUntil(()=>terrainGenerator.isInit);
-        terrainGenerator.Dig(transform.position , 3f);
+        if (terrainGenerator == null)
+        {
+            terrainGenerator = FindFirstObjectByType<TerrainGenerator>();
+        }
+        if (terrainGenerator != null)
+        {
+            await UniTask.WaitUntil(() => terrainGenerator.isInit);
+            terrainGenerator.Dig(transform.position, 3f);
+        }
     }
 
-    public void Move(Vector2 moveValue,float speed)
+    Transform CamTransform
     {
-        Vector3 moveDir =
-        cameraTransform.forward * moveValue.y +
-        cameraTransform.right * moveValue.x;
+        get
+        {
+            if (cameraTransform != null) return cameraTransform;
+            if (Camera.main != null) return Camera.main.transform;
+            return transform;
+        }
+    }
 
-        rb.linearVelocity =moveDir * speed;
+    public void Move(Vector2 moveValue, float speed)
+    {
+        if (rb == null)
+        {
+            rb = GetComponent<Rigidbody>();
+        }
+        if (rb == null) return;
+
+        Transform cam = CamTransform;
+        Vector3 forward = cam.forward;
+        Vector3 right = cam.right;
+
+        forward.y = 0f;
+        right.y = 0f;
+        forward.Normalize();
+        right.Normalize();
+
+        Vector3 moveDir = forward * moveValue.y + right * moveValue.x;
+        if (moveDir.sqrMagnitude > 0.001f)
+        {
+            transform.rotation = Quaternion.LookRotation(moveDir);
+        }
+
+        rb.linearVelocity = new Vector3(moveDir.x * speed, rb.linearVelocity.y, moveDir.z * speed);
     }
 
     public void Attack(int force)
@@ -47,26 +84,31 @@ public class PlayerController : MonoBehaviour
         DamageArea(transform.position, 1f)?.TakeDamage(force);
     }
 
-    public void MoveDig(float radius,int damage)
+    public void MoveDig(float radius, int damage)
     {
-
+        if (terrainGenerator == null)
+        {
+            terrainGenerator = FindFirstObjectByType<TerrainGenerator>();
+        }
         if (terrainGenerator == null)
         {
             Debug.LogError("TerrainGenerator null");
             return;
         }
-        Vector3 digPos = transform.position + transform.forward*0.1f;
+        Vector3 digPos = transform.position + transform.forward * 0.1f;
         terrainGenerator.Dig(digPos, radius);
         DamageArea(digPos, radius)?.TakeDamage(damage);
     }
-    public IDamageable DamageArea(Vector3 pos,float radius)
+
+    public IDamageable DamageArea(Vector3 pos, float radius)
     {
-        int hitCount=Physics.OverlapSphereNonAlloc(pos,radius,hitColliders,playerLayer);
-        for(int i = 0; i < hitCount; i++)
+        int hitCount = Physics.OverlapSphereNonAlloc(pos, radius, hitColliders, playerLayer);
+        for (int i = 0; i < hitCount; i++)
         {
-            Collider hit=hitColliders[i];
-            IDamageable damageable=hit.GetComponent<IDamageable>();
-            if(damageable==null)continue;
+            Collider hit = hitColliders[i];
+            if (hit.gameObject == gameObject) continue;
+            IDamageable damageable = hit.GetComponent<IDamageable>();
+            if (damageable == null) continue;
             return damageable;
         }
         return null;
@@ -74,7 +116,13 @@ public class PlayerController : MonoBehaviour
 
     public void ChangeDir()
     {
-        var lookValue=look.ReadValue<Vector2>();
-        transform.Rotate(lookValue.y,lookValue.x,0);
+        if (look != null && look.enabled)
+        {
+            var lookValue = look.ReadValue<Vector2>();
+            if (lookValue != Vector2.zero)
+            {
+                transform.Rotate(lookValue.y, lookValue.x, 0);
+            }
+        }
     }
 }

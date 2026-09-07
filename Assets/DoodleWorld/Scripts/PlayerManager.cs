@@ -4,56 +4,125 @@ using Cysharp.Threading.Tasks;
 
 public class PlayerManager : MonoBehaviour, IDamageable
 {
-    [SerializeField]int HP=20;
-    [SerializeField]float moveSpeed=5f;
-    [SerializeField]int attackForce=5;
-    [SerializeField]float digRadius=3f;
+    [SerializeField] int HP = 20;
+    [SerializeField] float moveSpeed = 5f;
+    [SerializeField] int attackForce = 5;
+    [SerializeField] float digRadius = 3f;
 
     [SerializeField] private InputActionAsset inputActionAsset;
 
     public InputActionAsset playerInputActions;
-    private int playerIndex=0;
+    private int playerIndex = 0;
     public InputDevice device;
 
     private InputAction moveAction;
     private InputAction itemAttackAction;
     private InputAction digAction;
 
-    [SerializeField]PlayerState currentState = PlayerState.idle;
-    public bool isWaitInput=false;
+    [SerializeField] PlayerState currentState = PlayerState.idle;
+    public bool isWaitInput = false;
     PlayerController playerController;
     [SerializeField] PlayerData playerData;
+
     void Awake()
     {
-        playerController = this.GetComponent<PlayerController>();
-        
-        HP=playerData.HP;
-        moveSpeed=playerData.moveSpeed;
-        attackForce=playerData.attackForce;
+        playerController = GetComponent<PlayerController>();
+
+        if (playerData != null)
+        {
+            HP = playerData.HP;
+            moveSpeed = playerData.moveSpeed;
+            attackForce = playerData.attackForce;
+        }
     }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
         _ = StateLoop();
         _ = InputLoop();
     }
 
-    void Update()
+    public async UniTask Init(int playerIndex, InputDevice device)
     {
-        var moveValue = moveAction.ReadValue<Vector2>();
-        Debug.Log("moveAction"+moveAction);
-        Debug.Log(
-            $"P{playerIndex + 1} Move: {moveValue} / " +
-            $"Device: {device.displayName}"
-        );
+        this.playerIndex = playerIndex;
+        this.device = device;
+        if (playerController != null)
+        {
+            await playerController.Init();
+        }
+        SetupInput();
+        ChangeState(PlayerState.idle);
     }
 
-    async UniTask StateLoop()
+    private void SetupInput()
     {
-        await UniTask.WaitUntil(()=>isWaitInput);
-        while (isWaitInput)
+        if (playerInputActions != null)
         {
-            await UniTask.WaitUntil(()=>isWaitInput);
+            playerInputActions.Disable();
+            Destroy(playerInputActions);
+        }
+
+        if (inputActionAsset == null)
+        {
+            Debug.LogWarning($"[P{playerIndex + 1}] inputActionAsset is null.");
+            return;
+        }
+
+        playerInputActions = Instantiate(inputActionAsset);
+
+        // Filter devices
+        if (device != null)
+        {
+            System.Collections.Generic.List<InputDevice> targetDevices = new System.Collections.Generic.List<InputDevice> { device };
+            if (device is Keyboard && Mouse.current != null)
+            {
+                targetDevices.Add(Mouse.current);
+            }
+
+            foreach (InputActionMap map in playerInputActions.actionMaps)
+            {
+                map.devices = targetDevices.ToArray();
+            }
+        }
+
+        InputActionMap playerMap = playerInputActions.FindActionMap("Player");
+        if (playerMap != null)
+        {
+            moveAction = playerMap.FindAction("Move");
+            itemAttackAction = playerMap.FindAction("Attack") ?? playerMap.FindAction("ItemAttack");
+            digAction = playerMap.FindAction("Dig");
+        }
+
+        Debug.Log($"[P{playerIndex + 1}] Input setup complete. Device: {(device != null ? device.displayName : "None")}");
+    }
+
+    public void StartInput()
+    {
+        if (playerInputActions != null)
+        {
+            playerInputActions.Enable();
+        }
+        isWaitInput = true;
+        ChangeState(PlayerState.idle);
+        Debug.Log($"[P{playerIndex + 1}] Input started.");
+    }
+
+    public void StopInput()
+    {
+        if (playerInputActions != null)
+        {
+            playerInputActions.Disable();
+        }
+        isWaitInput = false;
+        ChangeState(PlayerState.idle);
+        Debug.Log($"[P{playerIndex + 1}] Input stopped.");
+    }
+
+    private async UniTask StateLoop()
+    {
+        while (this != null && gameObject != null)
+        {
+            await UniTask.WaitUntil(() => isWaitInput);
             var state = currentState;
             switch (state)
             {
@@ -70,93 +139,100 @@ public class PlayerManager : MonoBehaviour, IDamageable
                     await DeadLoop();
                     break;
                 default:
+                    await UniTask.Yield();
                     break;
             }
-            await UniTask.WaitUntil(()=>currentState!=state);
+            await UniTask.Yield();
         }
     }
 
-    public async UniTask Init(int playerIndex,InputDevice device)
+    private async UniTask InputLoop()
     {
-        this.playerIndex=playerIndex;
-        this.device=device;
-        await playerController.Init();
-        ChangeState(PlayerState.idle);
-        SetupInput();
-        
-    }
-    private void SetupInput()
-{
-    if (playerInputActions != null)
-    {
-        playerInputActions.Disable();
-        Destroy(playerInputActions);
-    }
-
-    playerInputActions = Instantiate(inputActionAsset);
-
-    // 先にDeviceを限定する
-    foreach (InputActionMap actionMap in playerInputActions.actionMaps)
-    {
-        actionMap.devices = new InputDevice[] { device };
-        actionMap.Disable();
-    }
-
-    InputActionMap playerMap = playerInputActions.FindActionMap("Player");
-
-    // Action取得
-    moveAction = playerInputActions.FindAction("Move");
-    itemAttackAction = playerInputActions.FindAction("ItemAttack");
-    digAction = playerInputActions.FindAction("Dig");
-
-    // 必要なActionだけEnable
-    playerMap.Enable();
-    moveAction.Enable();
-    digAction.Enable();
-
-    Debug.Log(
-        $"P{playerIndex + 1} " +
-        $"Device={device.displayName} " +
-        $"ID={device.deviceId} " +
-        $"MoveEnabled={moveAction.enabled}"
-    );
-
-    foreach (var control in moveAction.controls)
-    {
-        Debug.Log(
-            $"P{playerIndex + 1} Move Control: " +
-            $"{control.path} / " +
-            $"Device={control.device.displayName} / " +
-            $"ID={control.device.deviceId}"
-        );
-    }
-}
-
-    async UniTask InputLoop()
-    {
-        await UniTask.WaitUntil(()=>isWaitInput);
-        while (isWaitInput)
+        while (this != null && gameObject != null)
         {
-            await UniTask.WaitUntil(()=>isWaitInput);
+            await UniTask.WaitUntil(() => isWaitInput);
             ParallelInput();
             await UniTask.Yield();
         }
     }
 
-    void ParallelInput()
+    private void ParallelInput()
     {
-        if (digAction.WasPressedThisFrame())
+        if (IsDigTriggered())
         {
-            playerController.MoveDig(digRadius,attackForce);
+            if (playerController != null)
+            {
+                playerController.MoveDig(digRadius, attackForce);
+            }
         }
     }
 
-    //Idle
+    private bool IsDigTriggered()
+    {
+        if (digAction != null && digAction.enabled && digAction.WasPressedThisFrame())
+        {
+            return true;
+        }
 
-    async UniTask IdleLoop()
+        // Keyboard fallback
+        if (device is Keyboard || device == null)
+        {
+            if (Keyboard.current != null)
+            {
+                if (playerIndex == 0 && Keyboard.current.spaceKey.wasPressedThisFrame)
+                    return true;
+                if (playerIndex == 1 && (Keyboard.current.numpad0Key.wasPressedThisFrame || Keyboard.current.enterKey.wasPressedThisFrame))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private Vector2 GetMoveVector()
+    {
+        Vector2 value = Vector2.zero;
+        if (moveAction != null && moveAction.enabled)
+        {
+            value = moveAction.ReadValue<Vector2>();
+        }
+
+        // Keyboard fallback / 1P 2P keyboard separation
+        if ((device is Keyboard || device == null) && value == Vector2.zero)
+        {
+            if (Keyboard.current != null)
+            {
+                Vector2 kbValue = Vector2.zero;
+                if (playerIndex == 0)
+                {
+                    if (Keyboard.current.wKey.isPressed) kbValue.y += 1f;
+                    if (Keyboard.current.sKey.isPressed) kbValue.y -= 1f;
+                    if (Keyboard.current.aKey.isPressed) kbValue.x -= 1f;
+                    if (Keyboard.current.dKey.isPressed) kbValue.x += 1f;
+                }
+                else if (playerIndex == 1)
+                {
+                    if (Keyboard.current.upArrowKey.isPressed) kbValue.y += 1f;
+                    if (Keyboard.current.downArrowKey.isPressed) kbValue.y -= 1f;
+                    if (Keyboard.current.leftArrowKey.isPressed) kbValue.x -= 1f;
+                    if (Keyboard.current.rightArrowKey.isPressed) kbValue.x += 1f;
+                }
+                if (kbValue != Vector2.zero)
+                {
+                    value = kbValue.normalized;
+                }
+            }
+        }
+
+        return value;
+    }
+
+    // --- Idle State ---
+
+    private async UniTask IdleLoop()
     {
         OnEnterIdle();
-        while (currentState == PlayerState.idle)
+        while (isWaitInput && currentState == PlayerState.idle)
         {
             OnIdle();
             await UniTask.Yield();
@@ -164,79 +240,81 @@ public class PlayerManager : MonoBehaviour, IDamageable
         OnExitIdle();
     }
 
-    void OnEnterIdle()
+    private void OnEnterIdle()
     {
-        Debug.Log("Enter Idle");
     }
 
-    void OnIdle()
+    private void OnIdle()
     {
-        var moveValue = moveAction.ReadValue<Vector2>();
-        Debug.Log(
-            $"P{playerIndex + 1} Move: {moveValue} / " +
-            $"Device: {device.displayName}"
-        );
+        var moveValue = GetMoveVector();
         if (moveValue != Vector2.zero)
         {
             ChangeState(PlayerState.walking);
+            return;
         }
-        if (itemAttackAction.triggered)
+
+        if (itemAttackAction != null && itemAttackAction.enabled && itemAttackAction.triggered)
         {
             ChangeState(PlayerState.attacking);
         }
     }
 
-    void OnExitIdle()
+    private void OnExitIdle()
     {
-        //Debug.Log("Exit Idle");
     }
 
-    //Walking
+    // --- Walking State ---
 
-    async UniTask WalkingLoop()
+    private async UniTask WalkingLoop()
     {
         OnEnterWalking();
-        while (currentState == PlayerState.walking)
+        while (isWaitInput && currentState == PlayerState.walking)
         {
-            Debug.Log("Walking Loop");
             OnWalking();
             await UniTask.Yield();
         }
         OnExitWalking();
     }
 
-    void OnEnterWalking()
+    private void OnEnterWalking()
     {
-        //Debug.Log("Enter Walking");
     }
 
-    void OnWalking()
+    private void OnWalking()
     {
-        var moveValue=moveAction.ReadValue<Vector2>();
+        var moveValue = GetMoveVector();
         if (moveValue == Vector2.zero)
         {
+            if (playerController != null)
+            {
+                playerController.Move(Vector2.zero, moveSpeed);
+            }
             ChangeState(PlayerState.idle);
+            return;
         }
-        if (itemAttackAction.triggered)
+
+        if (itemAttackAction != null && itemAttackAction.enabled && itemAttackAction.triggered)
         {
             ChangeState(PlayerState.attacking);
             return;
         }
-        playerController.Move(moveValue, moveSpeed);
+
+        if (playerController != null)
+        {
+            playerController.Move(moveValue, moveSpeed);
+        }
     }
 
-    void OnExitWalking()
+    private void OnExitWalking()
     {
-        //Debug.Log("Exit Walking");
     }
 
-    //Attacking
+    // --- Attacking State ---
 
-    async UniTask AttackingLoop()
+    private async UniTask AttackingLoop()
     {
-        Debug.Log("Attacking Loop");
         OnEnterAttacking();
-        while (currentState == PlayerState.attacking)
+        while (isWaitInput && currentState == PlayerState.attacking)
         {
             OnAttacking();
             await UniTask.Yield();
@@ -244,25 +322,30 @@ public class PlayerManager : MonoBehaviour, IDamageable
         OnExitAttacking();
     }
 
-    void OnEnterAttacking()
+    private void OnEnterAttacking()
     {
-        Debug.Log("Enter Attacking");
+        if (playerController != null)
+        {
+            playerController.Attack(attackForce);
+        }
     }
 
-    void OnAttacking()
+    private void OnAttacking()
     {
-        //playerController.Attack(attackForce);
+        // Finish attack and return to idle
+        ChangeState(PlayerState.idle);
     }
 
-    void OnExitAttacking()
+    private void OnExitAttacking()
     {
-        Debug.Log("Exit Attacking");
     }
 
-    async UniTask DeadLoop()
+    // --- Dead State ---
+
+    private async UniTask DeadLoop()
     {
         OnEnterDead();
-        while (currentState == PlayerState.dead)
+        while (isWaitInput && currentState == PlayerState.dead)
         {
             OnDead();
             await UniTask.Yield();
@@ -270,41 +353,22 @@ public class PlayerManager : MonoBehaviour, IDamageable
         OnExitDead();
     }
 
-    void OnEnterDead()
+    private void OnEnterDead()
     {
-        Debug.Log("Enter Dead");
     }
 
-    void OnDead()
+    private void OnDead()
     {
-        ChangeState(PlayerState.idle);
     }
 
-    void OnExitDead()
+    private void OnExitDead()
     {
-        Debug.Log("Exit Dead");
-        
-    }
-
-    public void StartInput()
-    {
-        if(playerInputActions==null)return;
-        playerInputActions.Enable();
-        isWaitInput=true;
-        ChangeState(PlayerState.idle);
-    }
-
-    public void StopInput()
-    {
-        playerInputActions?.Disable();
-        isWaitInput=false;
-        ChangeState(PlayerState.idle);
     }
 
     public void TakeDamage(int damage)
     {
         HP -= damage;
-        Debug.Log($"Player took {damage} damage. Current HP: {HP}");
+        Debug.Log($"Player {playerIndex + 1} took {damage} damage. Current HP: {HP}");
         if (HP <= 0)
         {
             ChangeState(PlayerState.dead);
@@ -313,7 +377,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     public void ChangeState(PlayerState state)
     {
-        if(currentState==state)return;
-        currentState=state;
+        if (currentState == state) return;
+        currentState = state;
     }
 }

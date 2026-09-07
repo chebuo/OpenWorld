@@ -10,7 +10,7 @@
                     "name": "Move",
                     "type": "Value",
                     "id": "f0eba599-c36a-448e-835e-6eba6a8027d4",
-                    "expectedControlType": "",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -46,7 +46,7 @@
                     "name": "Look",
                     "type": "Value",
                     "id": "217e297a-7ae0-4ed7-9559-cdd1e0dc254e",
-                    "expectedControlType": "",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -74,7 +74,7 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "2D Vector",
+                    "name": "2D Vector (WASD)",
                     "id": "7af4f7df-defb-4be2-8f9b-a247a56acf0b",
                     "path": "2DVector",
                     "interactions": "",
@@ -129,9 +129,64 @@
                     "isPartOfComposite": true
                 },
                 {
+                    "name": "2D Vector (Arrows)",
+                    "id": "5b23d9a1-0987-4321-88ef-123456789abc",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "12345678-1234-1234-1234-123456789ab1",
+                    "path": "<Keyboard>/upArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "12345678-1234-1234-1234-123456789ab2",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "12345678-1234-1234-1234-123456789ab3",
+                    "path": "<Keyboard>/leftArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "12345678-1234-1234-1234-123456789ab4",
+                    "path": "<Keyboard>/rightArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
                     "name": "",
                     "id": "0f54c00c-53de-41da-99de-75d10c0aded4",
-                    "path": "",
+                    "path": "<Keyboard>/escape",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -142,7 +197,29 @@
                 {
                     "name": "",
                     "id": "6d553b93-16a9-44a5-89e9-a41be82e605b",
-                    "path": "",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Attack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "89012345-1234-1234-1234-123456789ab5",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Attack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "89012345-1234-1234-1234-123456789ab6",
+                    "path": "<Keyboard>/numpadPeriod",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -209,6 +286,39 @@
                     "name": "",
                     "id": "9cf7f457-eebd-4d3c-96f9-b0f512ac8d0a",
                     "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Dig",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "89012345-1234-1234-1234-123456789ab7",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Dig",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "89012345-1234-1234-1234-123456789ab8",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Dig",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "89012345-1234-1234-1234-123456789ab9",
+                    "path": "<Keyboard>/numpad0",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
