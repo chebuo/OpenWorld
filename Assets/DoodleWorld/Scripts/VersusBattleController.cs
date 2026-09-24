@@ -9,6 +9,7 @@ public class VersusBattleController : MonoBehaviour
 
     public async UniTask Init(BattleSettings battleSettings, Dictionary<int, PlayerJoinData> playerDevices)
     {
+        Debug.Log(playerDevices);
         int playerCount = Mathf.Clamp(playerDevices.Count, 2, 4);
 
         for (int i = 0; i < playerCount; i++)
@@ -34,6 +35,16 @@ public class VersusBattleController : MonoBehaviour
                 continue;
 
             playerManager.StartInput();
+            Debug.Log(playerManager);
+        }
+    }
+
+    public async UniTask BattleLoop(bool isBattle)
+    {
+        while (isBattle)
+        {
+            //foreach()
+            await UniTask.Yield();
         }
     }
 

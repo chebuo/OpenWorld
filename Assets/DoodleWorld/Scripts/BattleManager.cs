@@ -8,9 +8,9 @@ namespace DoodleWorld
 {
     public class BattleManager : MonoBehaviour
     {
-        [SerializeField] GameObject singleBattleControllerPrefab;
-        [SerializeField] GameObject versusBattleControllerPrefab;
-        [SerializeField] GameObject onlineBattleControllerPrefab;
+        [SerializeField] GameObject singleControllerObj;
+        [SerializeField] GameObject versusControllerObj;
+        [SerializeField] GameObject onlineControllerObj;
 
         SingleBattleController singleBattleController;
         VersusBattleController versusBattleController;
@@ -50,6 +50,7 @@ namespace DoodleWorld
 
             await CountDown();
             _ = Timer();
+            _=BattleLoop(battleSettings.gameMode);
             StartPlayerInputs();
         }
 
@@ -68,7 +69,6 @@ namespace DoodleWorld
         public async UniTask InitSingleMode()
         {
             Debug.Log("Single Mode");
-            GameObject singleControllerObj = Instantiate(singleBattleControllerPrefab);
             singleBattleController = singleControllerObj.GetComponent<SingleBattleController>();
             await UniTask.Yield();
         }
@@ -76,7 +76,6 @@ namespace DoodleWorld
         public async UniTask InitVersusMode()
         {
             Debug.Log("Versus Mode");
-            GameObject versusControllerObj = Instantiate(versusBattleControllerPrefab);
             versusBattleController = versusControllerObj.GetComponent<VersusBattleController>();
             await versusBattleController.Init(battleSettings, playerDevices);
             await UniTask.Yield();
@@ -85,7 +84,6 @@ namespace DoodleWorld
         public async UniTask InitOnlineMode()
         {
             Debug.Log("Online Mode");
-            GameObject onlineControllerObj = Instantiate(onlineBattleControllerPrefab);
             onlineBattleController = onlineControllerObj.GetComponent<OnlineBattleController>();
             await UniTask.Yield();
         }
@@ -136,6 +134,7 @@ namespace DoodleWorld
         {
             while (isBattle)
             {
+                await versusBattleController.BattleLoop(isBattle);
                 await UniTask.Yield();
             }
         }
