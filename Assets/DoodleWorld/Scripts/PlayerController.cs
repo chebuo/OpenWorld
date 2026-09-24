@@ -5,8 +5,6 @@ using Cysharp.Threading.Tasks;
 
 public class PlayerController : MonoBehaviour
 {
-    InputAction look;
-
     [SerializeField] Transform cameraTransform;
     Collider[] hitColliders = new Collider[10];
     [SerializeField] LayerMask playerLayer;
@@ -17,19 +15,8 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        if (InputSystem.actions != null)
-        {
-            look = InputSystem.actions.FindAction("Look");
-            look?.Enable();
-        }
         rb = GetComponent<Rigidbody>();
     }
-
-    void Update()
-    {
-        ChangeDir();
-    }
-
     public async UniTask Init()
     {
         if (terrainGenerator == null)
@@ -61,22 +48,20 @@ public class PlayerController : MonoBehaviour
         }
         if (rb == null) return;
 
-        Transform cam = CamTransform;
-        Vector3 forward = cam.forward;
-        Vector3 right = cam.right;
+        Vector3 forward = transform.forward;
+        Vector3 right = transform.right;
 
-        forward.y = 0f;
-        right.y = 0f;
+        
         forward.Normalize();
         right.Normalize();
 
         Vector3 moveDir = forward * moveValue.y + right * moveValue.x;
         if (moveDir.sqrMagnitude > 0.001f)
         {
-            transform.rotation = Quaternion.LookRotation(moveDir);
+            moveDir.Normalize();
         }
 
-        rb.linearVelocity = new Vector3(moveDir.x * speed, rb.linearVelocity.y, moveDir.z * speed);
+        rb.linearVelocity = moveDir*speed;
     }
 
     public void Attack(int force)
@@ -114,15 +99,11 @@ public class PlayerController : MonoBehaviour
         return null;
     }
 
-    public void ChangeDir()
-    {
-        if (look != null && look.enabled)
+    public void ChangeDir(Vector2 lookValue)
+    {  
+        if (lookValue != Vector2.zero)
         {
-            var lookValue = look.ReadValue<Vector2>();
-            if (lookValue != Vector2.zero)
-            {
-                transform.Rotate(lookValue.y, lookValue.x, 0);
-            }
+            transform.Rotate(lookValue.y, lookValue.x, 0);
         }
     }
 }

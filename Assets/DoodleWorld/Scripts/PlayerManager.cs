@@ -18,6 +18,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private InputAction moveAction;
     private InputAction itemAttackAction;
     private InputAction digAction;
+    private InputAction lookAction;
 
     [SerializeField] PlayerState currentState = PlayerState.idle;
     public bool isWaitInput = false;
@@ -91,6 +92,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
             moveAction = playerMap.FindAction("Move");
             itemAttackAction = playerMap.FindAction("Attack") ?? playerMap.FindAction("ItemAttack");
             digAction = playerMap.FindAction("Dig");
+            lookAction=playerMap.FindAction("Look");
         }
 
         Debug.Log($"[P{playerIndex + 1}] Input setup complete. Device: {(device != null ? device.displayName : "None")}");
@@ -165,6 +167,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
                 playerController.MoveDig(digRadius, attackForce);
             }
         }
+        Debug.Log("ChangeDir");
+        ChangeDir();
     }
 
     private bool IsDigTriggered()
@@ -187,6 +191,12 @@ public class PlayerManager : MonoBehaviour, IDamageable
         }
 
         return false;
+    }
+
+    public void ChangeDir()
+    {
+        var lookValue=lookAction.ReadValue<Vector2>();
+        playerController.ChangeDir(lookValue);
     }
 
     private Vector2 GetMoveVector()
