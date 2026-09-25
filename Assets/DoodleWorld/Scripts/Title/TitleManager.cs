@@ -10,6 +10,7 @@ public class TitleManager : MonoBehaviour
     [SerializeField]GameObject modeScreen;
     [SerializeField]GameObject playerScreen;
     [SerializeField]GameObject startScreen;
+    [SerializeField]GameObject returnButton;
 
     bool isTitle=true;
 
@@ -93,6 +94,7 @@ public class TitleManager : MonoBehaviour
         modeScreen.SetActive(activeScreen == modeScreen);
         playerScreen.SetActive(activeScreen == playerScreen);
         startScreen.SetActive(activeScreen==startScreen);
+        returnButton.SetActive(!titleScreen.activeSelf);
     }
 
     public void SelectMode(GameMode mode)
