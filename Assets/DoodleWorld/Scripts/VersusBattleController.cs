@@ -6,7 +6,7 @@ using DoodleWorld;
 public class VersusBattleController : MonoBehaviour
 {
     [SerializeField] PlayerManager[] playerManagers;
-
+    
     public async UniTask Init(BattleSettings battleSettings, Dictionary<int, PlayerJoinData> playerDevices)
     {
         Debug.Log(playerDevices);
@@ -43,7 +43,21 @@ public class VersusBattleController : MonoBehaviour
     {
         while (isBattle)
         {
-            //foreach()
+            int aliveNum=0;
+            foreach(var playerManager in playerManagers)
+            {
+                if(!playerManager.gameObject.activeSelf)continue;
+                if (playerManager.currentState == PlayerState.dead)
+                {
+                    continue;
+                }
+                aliveNum++;
+            }
+            if (aliveNum == 1)
+            {
+                Debug.Log("残り一人");
+                break;
+            }
             await UniTask.Yield();
         }
     }
