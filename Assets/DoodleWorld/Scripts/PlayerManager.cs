@@ -20,7 +20,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private InputAction digAction;
     private InputAction lookAction;
 
-    [SerializeField] PlayerState currentState = PlayerState.idle;
+    [SerializeField] public PlayerState currentState = PlayerState.idle;
     public bool isWaitInput = false;
     PlayerController playerController;
     [SerializeField] PlayerData playerData;
@@ -369,10 +369,12 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     private void OnDead()
     {
+        
     }
 
     private void OnExitDead()
     {
+        this.gameObject.SetActive(false);
     }
 
     public void TakeDamage(int damage)

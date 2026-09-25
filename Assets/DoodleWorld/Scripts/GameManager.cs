@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 using Cysharp.Threading.Tasks;
 using DoodleWorld;
 
@@ -10,6 +9,7 @@ namespace DoodleWorld
     public class GameManager : MonoBehaviour
     {
         TitleManager titleManager;
+        ResultManager resultManager;
         DeviceManager deviceManager;
         BattleManager battleManager;
         [SerializeField]BattleSettings battleSettings = new BattleSettings();
@@ -18,6 +18,8 @@ namespace DoodleWorld
         public static GameManager Instance { get; private set; }
 
         public GameState currentState { get; private set; } = GameState.Idle;
+
+        SceneHandler sceneHandler=new SceneHandler();
         private void Awake()
         {
             if (Instance == null)
@@ -92,13 +94,16 @@ namespace DoodleWorld
         public async UniTask EndGame()
         {
             await MoveScene("Result");
+            resultManager=FindFirstObjectByType<ResultManager>();
+            await resultManager.ReslutLoop();
+            await resultManager.EndResult();
             Debug.Log("Game Ended");
-            await UniTask.WaitUntil(()=>currentState==GameState.Title);
+            currentState=GameState.Title;
         }
 
         public void UpdateStateFromScene()
         {
-            switch (SceneManager.GetActiveScene().name)
+            switch (sceneHandler.GetActiveScene())
             {
                 case "Title":
                     ChangeState(GameState.Title);
@@ -120,7 +125,7 @@ namespace DoodleWorld
 
         public async UniTask MoveScene(string sceneName)
         {
-            await SceneManager.LoadSceneAsync(sceneName);
+            await sceneHandler.LoadSceneAsync(sceneName);
         }
     }
 }
