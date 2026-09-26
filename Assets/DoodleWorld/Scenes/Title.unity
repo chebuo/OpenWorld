@@ -182,6 +182,7 @@ MonoBehaviour:
   modeScreen: {fileID: 716152134}
   playerScreen: {fileID: 413677279}
   startScreen: {fileID: 1922604963}
+  returnButton: {fileID: 296746206}
   battleSettings:
     gameMode: 0
     battleTime: 10
@@ -282,7 +283,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &296746207
 RectTransform:
   m_ObjectHideFlags: 0
