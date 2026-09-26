@@ -13,7 +13,7 @@ public class ResultManager : MonoBehaviour
     {
         while (currentState == ResultState.show)
         {
-            
+            await UniTask.WaitUntil(()=>currentState==ResultState.end);
         }
     }
 
