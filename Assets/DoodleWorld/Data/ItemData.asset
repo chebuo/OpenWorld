@@ -12,7 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d7c04eb4fabc4b49974da255410c202, type: 3}
   m_Name: ItemData
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  playerParams:
-  - hardness: 0
-    power: 0
-    rarity: 0
+  items:
+  - prefab: {fileID: 4580993248233325915, guid: 18bc6b2a747d07941a0a240c84bd3c6e, type: 3}
+    maxHP: 20
+    hardness: 5
+    power: 1
+    rarity: 1
+  - prefab: {fileID: 4580993248233325915, guid: 57accb5daf8cd234c84739f1691d6315, type: 3}
+    maxHP: 10
+    hardness: 5
+    power: 1
+    rarity: 1
