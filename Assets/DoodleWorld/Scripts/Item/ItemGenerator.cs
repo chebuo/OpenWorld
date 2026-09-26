@@ -6,9 +6,9 @@ public class ItemGenerator : MonoBehaviour
     [SerializeField]int _minDepth;
     [SerializeField]int _maxDepth;
 
-    [SerializeField]GameObject[] itemPrefabs;
 
     [SerializeField]TerrainGenerator terrainGenerator;
+    [SerializeField]ItemData itemData;
     bool SpawnRandomItem()
     {
         Vector3Int dims = terrainGenerator.Dimensions;
@@ -19,10 +19,12 @@ public class ItemGenerator : MonoBehaviour
 
         Vector3 localPos =terrainGenerator.GetVoxelLocalPosition(x, y, z);
 
-        GameObject prefab =itemPrefabs[Random.Range(0, itemPrefabs.Length)];
+        int itemIndex=Random.Range(0, itemData.items.Length);
+        ItemParams item=itemData.items[itemIndex];
 
-        Instantiate(prefab,terrainGenerator.transform.TransformPoint(localPos),Quaternion.identity,transform
-        );
+        GameObject itemObj=Instantiate(item.prefab,terrainGenerator.transform.TransformPoint(localPos),Quaternion.identity,transform);
+        itemObj.GetComponent<ItemController>().Init(item);
+
         return true;
     }
 

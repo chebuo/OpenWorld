@@ -1,14 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Cysharp.Threading.Tasks;
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] Transform cameraTransform;
     Collider[] hitColliders = new Collider[10];
-    [SerializeField] LayerMask playerLayer;
-    public List<GameObject> itemList = new List<GameObject>();
+    [SerializeField] LayerMask hitLayer;
+    public List<ItemProp> itemList = new List<ItemProp>();
 
     Rigidbody rb;
     [SerializeField] TerrainGenerator terrainGenerator;
@@ -27,16 +26,6 @@ public class PlayerController : MonoBehaviour
         {
             await UniTask.WaitUntil(() => terrainGenerator.isInit);
             terrainGenerator.Dig(transform.position, 3f);
-        }
-    }
-
-    Transform CamTransform
-    {
-        get
-        {
-            if (cameraTransform != null) return cameraTransform;
-            if (Camera.main != null) return Camera.main.transform;
-            return transform;
         }
     }
 
@@ -87,16 +76,27 @@ public class PlayerController : MonoBehaviour
 
     public IDamageable DamageArea(Vector3 pos, float radius)
     {
-        int hitCount = Physics.OverlapSphereNonAlloc(pos, radius, hitColliders, playerLayer);
+        int hitCount = Physics.OverlapSphereNonAlloc(pos, radius, hitColliders, hitLayer);
         for (int i = 0; i < hitCount; i++)
         {
             Collider hit = hitColliders[i];
             if (hit.gameObject == gameObject) continue;
             IDamageable damageable = hit.GetComponent<IDamageable>();
+            GetItem(hit);
             if (damageable == null) continue;
             return damageable;
         }
         return null;
+    }
+
+    private void GetItem(Collider col)
+    {
+        if (col.gameObject.CompareTag("Item"))
+        {
+            ItemController itemController=col.GetComponent<ItemController>();
+            if(itemController.isAlive)return;
+            itemList.Add(itemController.GiveItem());
+        }
     }
 
     public void ChangeDir(Vector2 lookValue)

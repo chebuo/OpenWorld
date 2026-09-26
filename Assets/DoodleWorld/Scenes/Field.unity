@@ -188,6 +188,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 9050522297401048746, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
+      propertyPath: hitLayer.m_Bits
+      value: 192
+      objectReference: {fileID: 0}
+    - target: {fileID: 9050522297401048746, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
       propertyPath: terrainGenerator
       value: 
       objectReference: {fileID: 1812782397}
@@ -410,9 +414,8 @@ MonoBehaviour:
   _itemCount: 60
   _minDepth: 0
   _maxDepth: 60
-  itemPrefabs:
-  - {fileID: 4580993248233325915, guid: 18bc6b2a747d07941a0a240c84bd3c6e, type: 3}
   terrainGenerator: {fileID: 1812782397}
+  itemData: {fileID: 11400000, guid: ef4958ee8ada7a242ba481c8b61851ff, type: 2}
 --- !u!4 &63399011
 Transform:
   m_ObjectHideFlags: 0
@@ -699,7 +702,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 119
+    m_Bits: 4294967295
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -830,6 +833,10 @@ PrefabInstance:
       propertyPath: cameraTransform
       value: 
       objectReference: {fileID: 696908541}
+    - target: {fileID: 9050522297401048746, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
+      propertyPath: hitLayer.m_Bits
+      value: 192
+      objectReference: {fileID: 0}
     - target: {fileID: 9050522297401048746, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
       propertyPath: terrainGenerator
       value: 
@@ -1347,7 +1354,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 119
+    m_Bits: 4294967295
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -2018,6 +2025,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 9050522297401048746, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
+      propertyPath: hitLayer.m_Bits
+      value: 192
+      objectReference: {fileID: 0}
+    - target: {fileID: 9050522297401048746, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
       propertyPath: terrainGenerator
       value: 
       objectReference: {fileID: 1812782397}
@@ -2114,12 +2125,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1611441430}
     - target: {fileID: 9050522297401048746, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
+      propertyPath: hitLayer.m_Bits
+      value: 192
+      objectReference: {fileID: 0}
+    - target: {fileID: 9050522297401048746, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
       propertyPath: terrainGenerator
       value: 
       objectReference: {fileID: 1812782397}
     - target: {fileID: 9050522297401048746, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
       propertyPath: playerLayer.m_Bits
       value: 64
+      objectReference: {fileID: 0}
+    - target: {fileID: 9050522297401048746, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
+      propertyPath: itemList.Array.size
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
