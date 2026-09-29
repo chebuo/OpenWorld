@@ -33,7 +33,6 @@ public class DeviceManager : MonoBehaviour
 
     private void OnButtonPressed(InputControl control)
     {
-        Debug.Log($"Button pressed: {control.name} on device: {control.device.displayName}");
         InputDevice device = control.device;
 
         if (device is not Keyboard && device is not Gamepad)return;
@@ -77,7 +76,6 @@ public class DeviceManager : MonoBehaviour
 
         if (device is Keyboard keyboard)
         {
-            Debug.Log($"Keyboard input detected: {control.name}");
             return control == keyboard.enterKey;
         }
         return false;
@@ -109,7 +107,6 @@ public class DeviceManager : MonoBehaviour
 
         playerStateChangedSubject.OnNext(playerIndex);
 
-        Debug.Log($"{playerIndex + 1}P joined : {device.displayName}");
     }
 
     private void ToggleReady(int playerIndex)
@@ -126,21 +123,18 @@ public class DeviceManager : MonoBehaviour
         }
         playerStateChangedSubject.OnNext(playerIndex);
 
-        Debug.Log($"{playerIndex + 1}P:{player.JoinState}");
 
         CheckAllReady();
     }
 
     private void LeavePlayer(int playerIndex)
     {
-        Debug.Log($"Player {playerIndex + 1} is leaving.");
         if (!playerDevices.ContainsKey(playerIndex))return;
 
         playerDevices.Remove(playerIndex);
 
         playerStateChangedSubject.OnNext(playerIndex);
 
-        Debug.Log($"{playerIndex + 1}P left");
         CheckAllReady();
     }
 
@@ -162,7 +156,6 @@ public class DeviceManager : MonoBehaviour
         {
             if(player.JoinState!=PlayerJoinState.Ready)return;
         }
-        Debug.Log("All players are ready!");
         allReadySubject.OnNext(0);
     }
 

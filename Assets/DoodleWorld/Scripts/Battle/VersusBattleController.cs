@@ -39,27 +39,28 @@ public class VersusBattleController : MonoBehaviour
         }
     }
 
-    public async UniTask BattleLoop(bool isBattle)
+    public async UniTask<int> BattleLoop()
     {
-        while (isBattle)
+        int aliveNum=0;
+        int winnerIdx=-1;
+        for(int i=0;i<playerManagers.Length;i++)
         {
-            int aliveNum=0;
-            foreach(var playerManager in playerManagers)
+            var playerManager=playerManagers[i];
+            if(!playerManager.gameObject.activeSelf)continue;
+            if (playerManager.currentState == PlayerState.dead)
             {
-                if(!playerManager.gameObject.activeSelf)continue;
-                if (playerManager.currentState == PlayerState.dead)
-                {
-                    continue;
-                }
-                aliveNum++;
+                continue;
             }
-            if (aliveNum == 1)
-            {
-                Debug.Log("残り一人");
-                break;
-            }
-            await UniTask.Yield();
+            aliveNum++;
+            winnerIdx=i+1;
         }
+        if (aliveNum == 1)
+        {
+            Debug.Log("残り一人");
+            return winnerIdx;
+        }
+        await UniTask.Yield();
+        return -1;
     }
 
     public void EndBattle()

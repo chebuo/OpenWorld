@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Cysharp.Threading.Tasks;
 using DoodleWorld;
+using TMPro;
 
 namespace DoodleWorld
 {
@@ -12,6 +13,9 @@ namespace DoodleWorld
         [SerializeField] GameObject versusControllerObj;
         [SerializeField] GameObject onlineControllerObj;
 
+        [SerializeField]TextMeshProUGUI countdownText;
+        [SerializeField]TextMeshProUGUI timerText;
+
         SingleBattleController singleBattleController;
         VersusBattleController versusBattleController;
         OnlineBattleController onlineBattleController;
@@ -20,6 +24,7 @@ namespace DoodleWorld
         PlayerManager playerManager;
         ItemGenerator itemGenerator;
 
+        public static int winnerIdx=-1;
         int countNumber = 3;
         bool isBattle = false;
 
@@ -29,6 +34,8 @@ namespace DoodleWorld
             this.playerDevices = playerDevices;
             playerManager = FindFirstObjectByType<PlayerManager>();
             itemGenerator = FindFirstObjectByType<ItemGenerator>();
+            timerText.gameObject.SetActive(false);
+            winnerIdx=-1;
 
             switch (battleSettings.gameMode)
             {
@@ -92,19 +99,29 @@ namespace DoodleWorld
         {
             for (int i = 0; i < countNumber; i++)
             {
+                countdownText.text=(countNumber-i).ToString();
                 await UniTask.Delay(1000);
             }
             Debug.Log("START!!");
+            countdownText.text="-START-";
+            UniTask.Void(async () =>
+            {
+                await UniTask.Delay(1000);
+                countdownText.gameObject.SetActive(false);
+            });
             isBattle = true;
         }
 
         public async UniTask Timer()
         {
+            timerText.gameObject.SetActive(true);
             for (int i = battleSettings.battleTime; i > 0; i--)
             {
+                timerText.text=i.ToString();
                 await UniTask.Delay(1000);
             }
             Debug.Log("Time Up!!");
+            winnerIdx=-1;
             isBattle = false;
         }
 
@@ -134,7 +151,10 @@ namespace DoodleWorld
         {
             while (isBattle)
             {
-                await versusBattleController.BattleLoop(isBattle);
+                winnerIdx=-1;
+                winnerIdx=await versusBattleController.BattleLoop();
+                if(winnerIdx!=-1)isBattle=false;
+                Debug.Log(winnerIdx);
                 await UniTask.Yield();
             }
         }
@@ -150,6 +170,8 @@ namespace DoodleWorld
                 playerManager.StopInput();
             }
             Debug.Log("Battle Finished");
+            countdownText.gameObject.SetActive(true);
+            countdownText.text="-FINISH-";
             await UniTask.Delay(3000);
         }
     }

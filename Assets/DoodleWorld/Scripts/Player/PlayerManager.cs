@@ -167,7 +167,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
                 playerController.MoveDig(digRadius, attackForce);
             }
         }
-        Debug.Log("ChangeDir");
         ChangeDir();
     }
 
@@ -369,12 +368,12 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     private void OnDead()
     {
-        
+        this.gameObject.SetActive(false);
     }
 
     private void OnExitDead()
     {
-        this.gameObject.SetActive(false);
+        
     }
 
     public void TakeDamage(int damage)
