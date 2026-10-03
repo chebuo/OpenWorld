@@ -85,7 +85,7 @@ public class DeviceManager : MonoBehaviour
     {
         if (device is Gamepad gamepad)
         {
-            return control == gamepad.buttonEast;
+            return control == gamepad.buttonNorth;
         }
 
         if (device is Keyboard keyboard)

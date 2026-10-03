@@ -1,28 +1,18 @@
 using UnityEngine;
 
-public class ItemController : MonoBehaviour,IDamageable
+public class ItemController : MonoBehaviour
 {
-    private int HP;
-    public bool isAlive=true;
-    private ItemParams itemParams;
+    private float power;
+    public float multipler;
 
-    public void Init(ItemParams itemData)
+    public void Init(float power)
     {
-        this.itemParams=itemData;
-        HP=itemData.maxHP;
+        this.power=power*multipler;
     }
 
-    public void TakeDamage(int damage)
+    private void OnTriggerEnter(Collider col)
     {
-        HP-=damage;
-        if (HP <= 0)
-        {
-            isAlive=false;
-        }
-    }
-    public ItemProp GiveItem()
-    {
-        this.gameObject.SetActive(false);
-        return itemParams.itemProp;
+        IDamageable damageable=col.GetComponent<IDamageable>();
+        if(damageable!=null)damageable.TakeDamage((int)power);
     }
 }

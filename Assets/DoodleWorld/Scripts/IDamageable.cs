@@ -1,4 +1,6 @@
+using Cysharp.Threading.Tasks;
+
 public interface IDamageable
 {
-    void TakeDamage(int damage);
+    UniTask TakeDamage(int damage);
 }

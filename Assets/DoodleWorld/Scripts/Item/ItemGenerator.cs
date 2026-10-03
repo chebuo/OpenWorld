@@ -23,7 +23,7 @@ public class ItemGenerator : MonoBehaviour
         ItemParams item=itemData.items[itemIndex];
 
         GameObject itemObj=Instantiate(item.prefab,terrainGenerator.transform.TransformPoint(localPos),Quaternion.identity,transform);
-        itemObj.GetComponent<ItemController>().Init(item);
+        itemObj.GetComponent<OreController>().Init(item);
 
         return true;
     }

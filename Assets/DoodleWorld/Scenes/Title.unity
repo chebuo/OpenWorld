@@ -185,7 +185,7 @@ MonoBehaviour:
   returnButton: {fileID: 296746206}
   battleSettings:
     gameMode: 0
-    battleTime: 10
+    battleTime: 100
     playerCount: 0
   deviceManager: {fileID: 946695639}
 --- !u!1 &170628568
@@ -2223,7 +2223,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 162575398}
         m_TargetAssemblyTypeName: TitleController, Assembly-CSharp
-        m_MethodName: OnClickTitleButton
+        m_MethodName: OnClickSettingsButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

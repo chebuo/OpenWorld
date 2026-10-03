@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 
 public class PlayerManager : MonoBehaviour, IDamageable
 {
-    [SerializeField] int HP = 20;
+    [SerializeField] public int HP = 20;
     [SerializeField] float moveSpeed = 5f;
     [SerializeField] int attackForce = 5;
     [SerializeField] float digRadius = 3f;
@@ -22,12 +22,17 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     [SerializeField] public PlayerState currentState = PlayerState.idle;
     public bool isWaitInput = false;
+    public bool isHit=false;
     PlayerController playerController;
+    Material material;
     [SerializeField] PlayerData playerData;
 
     void Awake()
     {
         playerController = GetComponent<PlayerController>();
+        Renderer renderer=GetComponent<Renderer>();
+        material=renderer.material;
+        Debug.Log(material);
 
         if (playerData != null)
         {
@@ -376,14 +381,39 @@ public class PlayerManager : MonoBehaviour, IDamageable
         
     }
 
-    public void TakeDamage(int damage)
+    public async UniTask TakeDamage(int damage)
     {
+        if(isHit)return;
+        isHit=true;
         HP -= damage;
+        await HitEffect(damage);
         Debug.Log($"Player {playerIndex + 1} took {damage} damage. Current HP: {HP}");
         if (HP <= 0)
         {
             ChangeState(PlayerState.dead);
         }
+    }
+
+    public async UniTask HitEffect(int damage)
+    {
+        material.EnableKeyword("_EMISSION");
+        await HitStop(damage);
+        await UniTask.Delay(500);
+        material.DisableKeyword("_EMISSION");
+        isHit=false;
+    }
+
+    public async UniTask HitStop(int damage)
+    {
+        int hitStop=damage*10;
+        int minHitStop=100;
+        int maxHitStop=500;
+        if(hitStop<=minHitStop)hitStop=minHitStop;
+        if(hitStop>=maxHitStop)hitStop=maxHitStop;
+        
+        Time.timeScale=0;
+        await UniTask.Delay(hitStop,ignoreTimeScale:true);
+        Time.timeScale=1;
     }
 
     public void ChangeState(PlayerState state)

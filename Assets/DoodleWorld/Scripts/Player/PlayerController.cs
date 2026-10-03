@@ -93,10 +93,21 @@ public class PlayerController : MonoBehaviour
     {
         if (col.gameObject.CompareTag("Item"))
         {
-            ItemController itemController=col.GetComponent<ItemController>();
-            if(itemController.isAlive)return;
-            itemList.Add(itemController.GiveItem());
+            OreController oreController=col.GetComponent<OreController>();
+            if(oreController.isAlive)return;
+            itemList.Add(oreController.GiveItem());
         }
+    }
+
+    public void UseItem()
+    {
+        if(itemList.Count==0)return;
+        ItemProp item=itemList[0];
+        
+        
+        GameObject weapon=Instantiate(item.shape,transform.position+transform.forward,transform.rotation);
+
+        itemList.RemoveAt(0);
     }
 
     public void ChangeDir(Vector2 lookValue)

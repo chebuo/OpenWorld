@@ -117,6 +117,7 @@ namespace DoodleWorld
             timerText.gameObject.SetActive(true);
             for (int i = battleSettings.battleTime; i > 0; i--)
             {
+                if(!isBattle)return;
                 timerText.text=i.ToString();
                 await UniTask.Delay(1000);
             }
@@ -154,7 +155,6 @@ namespace DoodleWorld
                 winnerIdx=-1;
                 winnerIdx=await versusBattleController.BattleLoop();
                 if(winnerIdx!=-1)isBattle=false;
-                Debug.Log(winnerIdx);
                 await UniTask.Yield();
             }
         }
@@ -163,7 +163,7 @@ namespace DoodleWorld
         {
             if (battleSettings.gameMode == GameMode.versus && versusBattleController != null)
             {
-                versusBattleController.EndBattle();
+                winnerIdx=versusBattleController.EndBattle();
             }
             else if (playerManager != null)
             {
