@@ -1,6 +1,5 @@
 using UnityEngine;
 using MarchingCubes;
-using Unity.Mathematics;
 
 sealed class TerrainGenerator : MonoBehaviour
 {
@@ -21,6 +20,18 @@ sealed class TerrainGenerator : MonoBehaviour
     int VoxelCount => _dimensions.x * _dimensions.y * _dimensions.z;
 
     public bool isInit=false;
+
+    private GameObject voxelColliderObj;
+    private BoxCollider voxelCollider;
+    
+    void Awake()
+    {
+        voxelColliderObj=new GameObject("VoxelCollider");
+        voxelColliderObj.hideFlags=HideFlags.HideAndDontSave;
+
+        voxelCollider=voxelColliderObj.AddComponent<BoxCollider>();
+        voxelCollider.isTrigger=true;
+    }
 
     void Start()
     {
@@ -114,6 +125,123 @@ sealed class TerrainGenerator : MonoBehaviour
         if (modified)
         {
             // 変更されたボクセルデータを GPU へ転送してメッシュを即座に再構築
+            UploadToGPU();
+            BuildMesh();
+        }
+    }
+
+    public void DigCollider(Collider targetCollider)
+    {
+        Bounds bounds = targetCollider.bounds;
+
+        // ワールド座標 → グリッド座標
+        Vector3 localMin = transform.InverseTransformPoint(bounds.min);
+        Vector3 localMax = transform.InverseTransformPoint(bounds.max);
+
+        Vector3 gridMin =
+            (localMin / _gridScale) + ((Vector3)_dimensions * 0.5f);
+
+        Vector3 gridMax =
+            (localMax / _gridScale) + ((Vector3)_dimensions * 0.5f);
+
+        int margin = 2;
+
+        int minX = Mathf.Clamp(
+            Mathf.FloorToInt(gridMin.x) - margin,
+            0,
+            _dimensions.x - margin
+        );
+
+        int maxX = Mathf.Clamp(
+            Mathf.CeilToInt(gridMax.x) + margin,
+            0,
+            _dimensions.x - margin
+        );
+
+        int minY = Mathf.Clamp(
+            Mathf.FloorToInt(gridMin.y) - margin,
+            0,
+            _dimensions.y - margin
+        );
+
+        int maxY = Mathf.Clamp(
+            Mathf.CeilToInt(gridMax.y) + margin,
+            0,
+            _dimensions.y - margin
+        );
+
+        int minZ = Mathf.Clamp(
+            Mathf.FloorToInt(gridMin.z) - margin,
+            0,
+            _dimensions.z - margin
+        );
+
+        int maxZ = Mathf.Clamp(
+            Mathf.CeilToInt(gridMax.z) + margin,
+            0,
+            _dimensions.z - margin
+        );
+
+        bool modified = false;
+
+        for (int x = minX; x < maxX; x++)
+        for (int y = minY; y < maxY; y++)
+        for (int z = minZ; z < maxZ; z++)
+        {
+            if (x < margin || x >= _dimensions.x - margin ||
+                y < margin || y >= _dimensions.y - margin ||
+                z < margin || z >= _dimensions.z - margin)
+                continue;
+
+            Vector3 voxelLocalPos =
+                (new Vector3(x + 0.5f, y + 0.5f, z + 0.5f)
+                - (Vector3)_dimensions * 0.5f) * _gridScale;
+
+            Vector3 voxelWorldPos =
+                transform.TransformPoint(voxelLocalPos);
+
+            // ボクセルのBounds
+            Bounds voxelBounds = new Bounds(
+                voxelWorldPos,
+                Vector3.one * _gridScale
+            );
+
+            // Colliderとボクセルが重なっているか
+            voxelCollider.transform.position = voxelWorldPos;
+            voxelCollider.transform.rotation = transform.rotation;
+            voxelCollider.size = Vector3.one * _gridScale;
+
+            bool overlapped = Physics.ComputePenetration(
+                voxelCollider,
+                voxelCollider.transform.position,
+                voxelCollider.transform.rotation,
+                targetCollider,
+                targetCollider.transform.position,
+                targetCollider.transform.rotation,
+                out Vector3 direction,
+                out float distance
+            );
+
+if (!overlapped)
+    continue;
+
+            float currentDensity = _density.Get(x, y, z);
+
+            // 掘る
+            float newDensity = Mathf.Min(
+                currentDensity,
+                currentDensity - 1f
+            );
+
+            if (currentDensity != newDensity)
+            {
+                _density.Set(x, y, z, newDensity);
+                modified = true;
+            }
+        }
+
+        if (modified)
+        {
             UploadToGPU();
             BuildMesh();
         }
