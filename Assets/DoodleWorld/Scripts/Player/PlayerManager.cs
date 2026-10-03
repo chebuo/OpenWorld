@@ -18,6 +18,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private InputAction moveAction;
     private InputAction itemAttackAction;
     private InputAction digAction;
+    private InputAction attackAction;
     private InputAction lookAction;
 
     [SerializeField] public PlayerState currentState = PlayerState.idle;
@@ -97,6 +98,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
             moveAction = playerMap.FindAction("Move");
             itemAttackAction = playerMap.FindAction("Attack") ?? playerMap.FindAction("ItemAttack");
             digAction = playerMap.FindAction("Dig");
+            attackAction = playerMap.FindAction("Attack");
             lookAction=playerMap.FindAction("Look");
         }
 
@@ -170,6 +172,13 @@ public class PlayerManager : MonoBehaviour, IDamageable
             if (playerController != null)
             {
                 playerController.MoveDig(digRadius, attackForce);
+            }
+        }
+        if (attackAction.WasPressedThisFrame())
+        {
+            if (playerController != null)
+            {
+                playerController.UseItem();
             }
         }
         ChangeDir();
@@ -410,7 +419,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         int maxHitStop=500;
         if(hitStop<=minHitStop)hitStop=minHitStop;
         if(hitStop>=maxHitStop)hitStop=maxHitStop;
-        
+
         Time.timeScale=0;
         await UniTask.Delay(hitStop,ignoreTimeScale:true);
         Time.timeScale=1;

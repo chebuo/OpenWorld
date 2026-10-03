@@ -21,6 +21,7 @@ public class ItemParams
 public class ItemProp
 {
     public GameObject shape;
+    public float distance;
     public float power;
     public float size;
 }

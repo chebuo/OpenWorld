@@ -104,8 +104,13 @@ public class PlayerController : MonoBehaviour
         if(itemList.Count==0)return;
         ItemProp item=itemList[0];
         
-        
-        GameObject weapon=Instantiate(item.shape,transform.position+transform.forward,transform.rotation);
+        GameObject weapon=Instantiate(item.shape,transform.position+transform.forward*item.distance,transform.rotation);
+        ItemController itemController=weapon.GetComponent<ItemController>();
+        if (itemController != null)
+        {
+            itemController.Init(item.power,this.gameObject);
+        }
+        Destroy(weapon,1f);
 
         itemList.RemoveAt(0);
     }

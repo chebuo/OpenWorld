@@ -13,13 +13,21 @@ MonoBehaviour:
   m_Name: ItemData
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   items:
-  - prefab: {fileID: 4580993248233325915, guid: 18bc6b2a747d07941a0a240c84bd3c6e, type: 3}
+  - itemProp:
+      shape: {fileID: 2325972225595148524, guid: a40018cde88fde248a73a4d71b16599e, type: 3}
+      distance: 5
+      power: 0
+      size: 0
+    prefab: {fileID: 4580993248233325915, guid: 18bc6b2a747d07941a0a240c84bd3c6e, type: 3}
     maxHP: 20
     hardness: 5
-    power: 1
     rarity: 1
-  - prefab: {fileID: 4580993248233325915, guid: 57accb5daf8cd234c84739f1691d6315, type: 3}
+  - itemProp:
+      shape: {fileID: 2325972225595148524, guid: a40018cde88fde248a73a4d71b16599e, type: 3}
+      distance: 5
+      power: 0
+      size: 0
+    prefab: {fileID: 4580993248233325915, guid: 57accb5daf8cd234c84739f1691d6315, type: 3}
     maxHP: 10
     hardness: 5
-    power: 1
     rarity: 1
