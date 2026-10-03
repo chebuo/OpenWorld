@@ -57,7 +57,11 @@ namespace DoodleWorld
                     case GameState.GameOver:
                         await EndGame();
                         break;
+                    default:
+                        await UniTask.Yield();
+                        break;
                 }
+                
             }
         }
 
