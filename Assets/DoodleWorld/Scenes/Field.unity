@@ -461,7 +461,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DoodleWorld.GameManager
   battleSettings:
-    gameMode: 1
+    gameMode: 0
     battleTime: 100
     playerCount: 2
 --- !u!4 &144130672
@@ -1808,6 +1808,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63e330fafcc5d20468f47c605053ea05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SingleBattleController
+  isTestMode: 1
+  testBattleTime: 60
+  disableGameManagerInTest: 1
+  disableOtherPlayers: 1
+  playerManager: {fileID: 0}
+  battleManager: {fileID: 0}
 --- !u!4 &1645753979
 Transform:
   m_ObjectHideFlags: 0

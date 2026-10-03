@@ -77,6 +77,7 @@ namespace DoodleWorld
         {
             Debug.Log("Single Mode");
             singleBattleController = singleControllerObj.GetComponent<SingleBattleController>();
+            await singleBattleController.Init();
             await UniTask.Yield();
         }
 
