@@ -171,6 +171,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5451853920754045130, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
+      propertyPath: m_UseGravity
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6034356445432579995, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
       propertyPath: m_Name
       value: Cube_3
@@ -853,7 +857,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3463047781386532493, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
       propertyPath: digRadius
-      value: 3.33
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3463047781386532493, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
       propertyPath: inputActionAsset
@@ -899,6 +903,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5451853920754045130, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
+      propertyPath: m_UseGravity
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6034356445432579995, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
       propertyPath: m_Name
       value: Cube_1
@@ -910,6 +918,14 @@ PrefabInstance:
     - target: {fileID: 6034356445432579995, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7695196986490826590, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 696908540}
+    - target: {fileID: 7695196986490826590, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
+      propertyPath: m_PlaneDistance
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9050522297401048746, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
       propertyPath: cameraTransform
@@ -1795,7 +1811,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1645753978
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1814,6 +1830,7 @@ MonoBehaviour:
   disableOtherPlayers: 1
   playerManager: {fileID: 0}
   battleManager: {fileID: 0}
+  itemGenerator: {fileID: 0}
 --- !u!4 &1645753979
 Transform:
   m_ObjectHideFlags: 0
@@ -2336,6 +2353,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5451853920754045130, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
+      propertyPath: m_UseGravity
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6034356445432579995, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
       propertyPath: m_Name
       value: Cube_2
@@ -2573,6 +2594,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5451853920754045130, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
+      propertyPath: m_UseGravity
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6034356445432579995, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
       propertyPath: m_Name
       value: Cube
@@ -2583,6 +2608,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6034356445432579995, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
       propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7695196986490826590, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 1611441429}
+    - target: {fileID: 7695196986490826590, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}
+      propertyPath: m_PlaneDistance
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9050522297401048746, guid: cd3c4329a6cbd094f8aeb488619a8788, type: 3}

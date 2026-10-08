@@ -222,8 +222,8 @@ sealed class TerrainGenerator : MonoBehaviour
                 out float distance
             );
 
-if (!overlapped)
-    continue;
+            if (!overlapped)
+                continue;
 
             float currentDensity = _density.Get(x, y, z);
 
