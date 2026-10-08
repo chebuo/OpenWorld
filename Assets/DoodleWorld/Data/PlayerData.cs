@@ -6,4 +6,5 @@ public class PlayerData : ScriptableObject
         public int HP;
         public int attackForce;
         public float moveSpeed;
+        public float digRadius;
 }

@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: PlayerData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerData
   HP: 100
-  attackForce: 5
-  moveSpeed: 5
+  attackForce: 3
+  moveSpeed: 3
+  digRadius: 2
