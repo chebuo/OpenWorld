@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Cysharp.Threading.Tasks;
 using DoodleWorld;
 using TMPro;

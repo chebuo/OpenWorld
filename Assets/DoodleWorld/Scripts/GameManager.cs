@@ -61,7 +61,6 @@ namespace DoodleWorld
                         await UniTask.Yield();
                         break;
                 }
-                
             }
         }
 
