@@ -18,7 +18,7 @@ public class ItemController : MonoBehaviour
     void Awake()
     {
         terrainGenerator=FindFirstObjectByType<TerrainGenerator>();
-        col=this.GetComponent<SphereCollider>();
+        col=this.GetComponent<MeshCollider>();
         terrainGenerator.DigCollider(col);
     }
 

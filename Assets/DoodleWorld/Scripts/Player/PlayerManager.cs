@@ -5,9 +5,9 @@ using Cysharp.Threading.Tasks;
 public class PlayerManager : MonoBehaviour, IDamageable
 {
     [SerializeField] public int HP = 20;
-    [SerializeField] float moveSpeed = 5f;
-    [SerializeField] int attackForce = 5;
-    [SerializeField] float digRadius = 3f;
+    [SerializeField] public float moveSpeed = 3f;
+    [SerializeField] public int attackForce = 1;
+    [SerializeField] public float digRadius = 1f;
 
     [SerializeField] private InputActionAsset inputActionAsset;
 
@@ -40,6 +40,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
             HP = playerData.HP;
             moveSpeed = playerData.moveSpeed;
             attackForce = playerData.attackForce;
+            digRadius = playerData.digRadius;
         }
     }
 
@@ -66,7 +67,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if (playerInputActions != null)
         {
             playerInputActions.Disable();
-            Destroy(playerInputActions);
+            //Destroy(playerInputActions);
         }
 
         if (inputActionAsset == null)
@@ -388,6 +389,33 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private void OnExitDead()
     {
         
+    }
+
+    public void UseStatusEffect(StatusEffect effect)
+    {
+        switch (effect.type)
+        {
+            case StatusEffectType.WalkSpeed:
+                moveSpeed += effect.value;
+                break;
+
+            case StatusEffectType.AttackForce:
+                attackForce += Mathf.RoundToInt(effect.value);
+                break;
+
+            case StatusEffectType.DigRadius:
+                digRadius += effect.value;
+                break;
+
+            case StatusEffectType.RecoverHP:
+                HP += Mathf.RoundToInt(effect.value);
+                HP = Mathf.Min(HP, playerData.HP);
+                break;
+
+            default:
+                Debug.LogWarning("Unknown status effect type");
+                break;
+        }
     }
 
     public async UniTask TakeDamage(int damage)

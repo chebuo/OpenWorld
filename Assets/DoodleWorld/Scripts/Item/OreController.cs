@@ -11,6 +11,7 @@ public class OreController : MonoBehaviour,IDamageable
     {
         this.itemParams=itemData;
         HP=itemData.maxHP;
+        isAlive=true;
     }
 
     public async UniTask TakeDamage(int damage)
@@ -22,9 +23,20 @@ public class OreController : MonoBehaviour,IDamageable
         }
         await UniTask.Yield();
     }
-    public ItemProp GiveItem()
+    public ItemParams GiveItem()
     {
         this.gameObject.SetActive(false);
-        return itemParams.itemProp;
+        return new ItemParams
+        {
+            itemProp = new ItemProp
+            {
+                shape = itemParams.itemProp.shape,
+                distance = itemParams.itemProp.distance,
+                power = itemParams.itemProp.power,
+                remaining = itemParams.itemProp.remaining,
+                icon = itemParams.itemProp.icon
+            },
+            statusEffects = itemParams.statusEffects,
+        };
     }
 }

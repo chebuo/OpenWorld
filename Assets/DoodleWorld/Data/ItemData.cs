@@ -10,6 +10,7 @@ public class ItemData : ScriptableObject
 public class ItemParams
 {
     public ItemProp itemProp;
+    public StatusEffect[] statusEffects;
     public GameObject prefab;
 
     public int maxHP;
@@ -23,5 +24,21 @@ public class ItemProp
     public GameObject shape;
     public float distance;
     public float power;
-    public float size;
+    public int remaining;
+    public Sprite icon;
+}
+
+[System.Serializable]
+public class StatusEffect
+{
+    public StatusEffectType type;
+    public float value;
+}
+
+public enum StatusEffectType
+{
+    WalkSpeed,
+    AttackForce,
+    DigRadius,
+    RecoverHP
 }

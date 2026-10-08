@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using R3;
 
 public class PlayerController : MonoBehaviour
 {
@@ -8,13 +9,17 @@ public class PlayerController : MonoBehaviour
     Collider[] hitColliders = new Collider[10];
     [SerializeField] LayerMask hitLayer;
     public List<ItemProp> itemList = new List<ItemProp>();
+    private readonly ReactiveProperty<ItemProp> currentItem=new(null);
+    public ReadOnlyReactiveProperty<ItemProp> CurrentItem => currentItem;
 
     Rigidbody rb;
     [SerializeField] TerrainGenerator terrainGenerator;
+    PlayerManager playerManager;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        playerManager = this.GetComponent<PlayerManager>();
     }
     public async UniTask Init()
     {
@@ -50,7 +55,8 @@ public class PlayerController : MonoBehaviour
             moveDir.Normalize();
         }
 
-        rb.linearVelocity = moveDir*speed;
+        //rb.linearVelocity = new Vector3(moveDir.x*speed,rb.linearVelocity.y,moveDir.z*speed);
+        rb.linearVelocity=moveDir*speed;
     }
 
     public void Attack(int force)
@@ -69,7 +75,7 @@ public class PlayerController : MonoBehaviour
             Debug.LogError("TerrainGenerator null");
             return;
         }
-        Vector3 digPos = transform.position + transform.forward * 0.1f;
+        Vector3 digPos = transform.position + transform.forward * 0.1f+transform.up*(radius/2);
         terrainGenerator.Dig(digPos, radius);
         DamageArea(digPos, radius)?.TakeDamage(damage);
     }
@@ -95,7 +101,21 @@ public class PlayerController : MonoBehaviour
         {
             OreController oreController=col.GetComponent<OreController>();
             if(oreController.isAlive)return;
-            itemList.Add(oreController.GiveItem());
+            ItemParams itemParams=oreController.GiveItem();
+            if (itemParams.itemProp.shape == null)
+            {
+                playerManager.UseStatusEffect(itemParams.statusEffects[0]);
+                return;
+            }
+            else
+            {
+                itemList.Add(itemParams.itemProp);
+                currentItem.Value=itemList[0];
+                Debug.Log($"Item Collected: {itemParams.itemProp.shape.name}");
+                Debug.Log($"Item List Count: {currentItem.Value}");
+                return;
+            }
+            
         }
     }
 
@@ -104,6 +124,7 @@ public class PlayerController : MonoBehaviour
         if(itemList.Count==0)return;
         ItemProp item=itemList[0];
         
+        item.remaining--;
         GameObject weapon=Instantiate(item.shape,transform.position+transform.forward*item.distance,transform.rotation);
         ItemController itemController=weapon.GetComponent<ItemController>();
         if (itemController != null)
@@ -112,14 +133,26 @@ public class PlayerController : MonoBehaviour
         }
         Destroy(weapon,1f);
 
-        itemList.RemoveAt(0);
+        if(item.remaining<=0)
+        {
+            itemList.RemoveAt(0);
+            currentItem.Value=itemList.Count > 0 ? itemList[0] : null;
+        }
     }
 
+    private float xRot=0f;
+    private float yRot=0f;
     public void ChangeDir(Vector2 lookValue)
     {  
         if (lookValue != Vector2.zero)
         {
-            transform.Rotate(lookValue.y, lookValue.x, 0);
+            xRot-=lookValue.y;
+            xRot=Mathf.Clamp(xRot,-90,90);
+
+            transform.Rotate(0, lookValue.x, 0);
+
+            yRot+=lookValue.x;
+            transform.rotation=Quaternion.Euler(xRot,yRot,0);
         }
     }
 }
