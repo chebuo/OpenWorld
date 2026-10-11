@@ -11,6 +11,8 @@ public class PlayerController : MonoBehaviour
     public List<ItemProp> itemList = new List<ItemProp>();
     private readonly ReactiveProperty<ItemProp> currentItem=new(null);
     public ReadOnlyReactiveProperty<ItemProp> CurrentItem => currentItem;
+    private readonly ReactiveProperty<int> currentItemRemaining = new(0);
+    public ReadOnlyReactiveProperty<int> CurrentItemRemaining => currentItemRemaining;
 
     Rigidbody rb;
     [SerializeField] TerrainGenerator terrainGenerator;
@@ -111,6 +113,7 @@ public class PlayerController : MonoBehaviour
             {
                 itemList.Add(itemParams.itemProp);
                 currentItem.Value=itemList[0];
+                currentItemRemaining.Value=itemList[0].remaining;
                 Debug.Log($"Item Collected: {itemParams.itemProp.shape.name}");
                 Debug.Log($"Item List Count: {currentItem.Value}");
                 return;
@@ -125,6 +128,7 @@ public class PlayerController : MonoBehaviour
         ItemProp item=itemList[0];
         
         item.remaining--;
+        currentItemRemaining.Value=item.remaining;
         GameObject weapon=Instantiate(item.shape,transform.position+transform.forward*item.distance,transform.rotation);
         ItemController itemController=weapon.GetComponent<ItemController>();
         if (itemController != null)
@@ -137,6 +141,7 @@ public class PlayerController : MonoBehaviour
         {
             itemList.RemoveAt(0);
             currentItem.Value=itemList.Count > 0 ? itemList[0] : null;
+            currentItemRemaining.Value=itemList.Count > 0 ? itemList[0].remaining : 0;
         }
     }
 
