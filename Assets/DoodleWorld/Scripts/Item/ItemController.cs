@@ -9,9 +9,9 @@ public class ItemController : MonoBehaviour
     Collider col;
     TerrainGenerator terrainGenerator;
 
-    public void Init(float power,GameObject owner)
+    public void Init(float attackForce,GameObject owner)
     {
-        this.power=power*multipler;
+        this.power=attackForce*multipler;
         this.owner=owner;
     }
 
@@ -19,7 +19,21 @@ public class ItemController : MonoBehaviour
     {
         terrainGenerator=FindFirstObjectByType<TerrainGenerator>();
         col=this.GetComponent<MeshCollider>();
-        terrainGenerator.DigCollider(col);
+    }
+
+    void Start()
+    {
+        Attack();
+        Debug.Log(power);
+    }
+
+    void Attack()
+    {
+        PlayerController playerController=owner.GetComponent<PlayerController>();
+        if(playerController!=null)
+        {
+            playerController.AddDigAmount(terrainGenerator.DigCollider(col,power));
+        }
     }
 
     private void OnTriggerEnter(Collider col)
