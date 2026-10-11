@@ -438,28 +438,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
         }
     }
 
-    public async UniTask HitEffect(int damage)
-    {
-        material.EnableKeyword("_EMISSION");
-        await HitStop(damage);
-        await UniTask.Delay(500);
-        material.DisableKeyword("_EMISSION");
-        isHit=false;
-    }
-
-    public async UniTask HitStop(int damage)
-    {
-        int hitStop=damage*10;
-        int minHitStop=100;
-        int maxHitStop=500;
-        if(hitStop<=minHitStop)hitStop=minHitStop;
-        if(hitStop>=maxHitStop)hitStop=maxHitStop;
-
-        Time.timeScale=0;
-        await UniTask.Delay(hitStop,ignoreTimeScale:true);
-        Time.timeScale=1;
-    }
-
     public void ChangeState(PlayerState state)
     {
         if (currentState == state) return;
