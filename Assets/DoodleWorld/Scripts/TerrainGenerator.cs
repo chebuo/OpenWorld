@@ -74,8 +74,9 @@ sealed class TerrainGenerator : MonoBehaviour
     }
 
     // 地形を掘る処理
-    public void Dig(Vector3 worldPos, float radius)
+    public float Dig(Vector3 worldPos, float radius)
     {
+        float digAmount=0;
         // ワールド座標 → オブジェクトのローカル座標へ変換
         Vector3 localPos = transform.InverseTransformPoint(worldPos);
 
@@ -111,12 +112,16 @@ sealed class TerrainGenerator : MonoBehaviour
             if (dist < radius)
             {
                 float currentDensity = _density.Get(x, y, z);
-                float targetAirDensity =  currentDensity - (radius - dist);
+                float targetAirDensity =  currentDensity - (radius-dist);
                 float newDensity = Mathf.Min(currentDensity, targetAirDensity);
+
+                float actualReduction=0;
+                if(currentDensity>0) actualReduction=currentDensity-newDensity;// 変更量を計算,0は空気かどうか
 
                 if (currentDensity != newDensity)
                 {
                     _density.Set(x, y, z, newDensity);
+                    digAmount+=actualReduction;
                     modified = true;
                 }
             }
@@ -128,10 +133,13 @@ sealed class TerrainGenerator : MonoBehaviour
             UploadToGPU();
             BuildMesh();
         }
+        return digAmount;
     }
 
-    public void DigCollider(Collider targetCollider)
+    public float DigCollider(Collider targetCollider,float power)
     {
+        float digAmount=0;
+
         Bounds bounds = targetCollider.bounds;
 
         // ワールド座標 → グリッド座標
@@ -230,12 +238,15 @@ sealed class TerrainGenerator : MonoBehaviour
             // 掘る
             float newDensity = Mathf.Min(
                 currentDensity,
-                currentDensity - 1f
+                currentDensity - power
             );
+            float actualReduction= 0;
+            if(currentDensity>0) actualReduction=currentDensity-newDensity;
 
             if (currentDensity != newDensity)
             {
                 _density.Set(x, y, z, newDensity);
+                digAmount+=actualReduction;
                 modified = true;
             }
         }
@@ -245,6 +256,7 @@ sealed class TerrainGenerator : MonoBehaviour
             UploadToGPU();
             BuildMesh();
         }
+        return digAmount;
     }
 
     void BuildMesh()

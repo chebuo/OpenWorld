@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
@@ -13,6 +14,8 @@ public class PlayerController : MonoBehaviour
     public ReadOnlyReactiveProperty<ItemProp> CurrentItem => currentItem;
     private readonly ReactiveProperty<int> currentItemRemaining = new(0);
     public ReadOnlyReactiveProperty<int> CurrentItemRemaining => currentItemRemaining;
+    private readonly ReactiveProperty<float> sumDigAmount=new(0);
+    public ReadOnlyReactiveProperty<float> SumDigAmount=>sumDigAmount;
 
     Rigidbody rb;
     [SerializeField] TerrainGenerator terrainGenerator;
@@ -78,7 +81,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
         Vector3 digPos = transform.position + transform.forward * 0.1f+transform.up*(radius/2);
-        terrainGenerator.Dig(digPos, radius);
+        AddDigAmount(terrainGenerator.Dig(digPos, radius));
         DamageArea(digPos, radius)?.TakeDamage(damage);
     }
 
@@ -145,6 +148,32 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void LevelUp()
+    {
+        StatusEffectType[] effectTypes = (StatusEffectType[])Enum.GetValues(typeof(StatusEffectType));
+        StatusEffect levelUpEffect=new StatusEffect();
+        levelUpEffect.type=effectTypes[UnityEngine.Random.Range(1,effectTypes.Length)];
+        switch(levelUpEffect.type)
+        {
+            case StatusEffectType.WalkSpeed:
+                levelUpEffect.value=1.2f;
+                break;
+            case StatusEffectType.AttackForce:
+                levelUpEffect.value=1.5f;
+                break;
+            case StatusEffectType.DigRadius:
+                levelUpEffect.value=0.5f;
+                break;
+            case StatusEffectType.RecoverHP:
+                levelUpEffect.value=20f;
+                break;
+            default:
+                levelUpEffect.value=0f;
+                break;
+        }
+        playerManager.UseStatusEffect(levelUpEffect);
+    }
+
     private float xRot=0f;
     private float yRot=0f;
     public void ChangeDir(Vector2 lookValue)
@@ -159,5 +188,10 @@ public class PlayerController : MonoBehaviour
             yRot+=lookValue.x;
             transform.rotation=Quaternion.Euler(xRot,yRot,0);
         }
+    }
+
+    public void AddDigAmount(float amount)
+    {
+        sumDigAmount.Value+=amount;
     }
 }
