@@ -990,6 +990,10 @@ PrefabInstance:
       propertyPath: terrainGenerator
       value: 
       objectReference: {fileID: 930885995}
+    - target: {fileID: 5297500932459112644, guid: 55e82b2c609132d4aa2dc44045aa5062, type: 3}
+      propertyPath: m_text
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 5903388416017445967, guid: 55e82b2c609132d4aa2dc44045aa5062, type: 3}
       propertyPath: m_Camera
       value: 
