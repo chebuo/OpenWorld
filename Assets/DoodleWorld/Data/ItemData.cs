@@ -37,6 +37,7 @@ public class StatusEffect
 
 public enum StatusEffectType
 {
+    None,
     WalkSpeed,
     AttackForce,
     DigRadius,

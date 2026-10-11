@@ -41,8 +41,36 @@ MonoBehaviour:
       power: 1
       remaining: 8
       icon: {fileID: 21300000, guid: 580b3ec1e3eeae54bbbf3e20b31c31ba, type: 3}
-    statusEffects: []
+    statusEffects:
+    - type: 0
+      value: 0
     prefab: {fileID: 4580993248233325915, guid: 57accb5daf8cd234c84739f1691d6315, type: 3}
     maxHP: 30
+    hardness: 5
+    rarity: 1
+  - itemProp:
+      shape: {fileID: 0}
+      distance: 1.5
+      power: 1
+      remaining: 8
+      icon: {fileID: 21300000, guid: 580b3ec1e3eeae54bbbf3e20b31c31ba, type: 3}
+    statusEffects:
+    - type: 3
+      value: 1
+    prefab: {fileID: 33064999353637458, guid: 7dc5e87d967fe2b4ab5b772305909711, type: 3}
+    maxHP: 10
+    hardness: 5
+    rarity: 1
+  - itemProp:
+      shape: {fileID: 0}
+      distance: 1.5
+      power: 1
+      remaining: 8
+      icon: {fileID: 21300000, guid: 580b3ec1e3eeae54bbbf3e20b31c31ba, type: 3}
+    statusEffects:
+    - type: 2
+      value: 1
+    prefab: {fileID: 33064999353637458, guid: 42f369de4a4f99941a9c9d11e8c1fd0f, type: 3}
+    maxHP: 10
     hardness: 5
     rarity: 1
