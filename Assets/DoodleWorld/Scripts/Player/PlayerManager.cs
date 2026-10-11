@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Cysharp.Threading.Tasks;
+using R3;
 
 public class PlayerManager : MonoBehaviour, IDamageable
 {
@@ -25,12 +26,17 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public bool isWaitInput = false;
     public bool isHit=false;
     PlayerController playerController;
+    PlayerEffectController playerEffectController;
     Material material;
     [SerializeField] PlayerData playerData;
+
+    private readonly ReactiveProperty<float> HPratio=new(1);
+    public ReadOnlyReactiveProperty<float> HPRatio=>HPratio;
 
     void Awake()
     {
         playerController = GetComponent<PlayerController>();
+        playerEffectController=GetComponent<PlayerEffectController>();
         Renderer renderer=GetComponent<Renderer>();
         material=renderer.material;
         Debug.Log(material);
@@ -423,7 +429,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if(isHit)return;
         isHit=true;
         HP -= damage;
-        await HitEffect(damage);
+        HPratio.Value=(float)HP/playerData.HP;
+        await playerEffectController.HitEffect(damage,isHit);
         Debug.Log($"Player {playerIndex + 1} took {damage} damage. Current HP: {HP}");
         if (HP <= 0)
         {
