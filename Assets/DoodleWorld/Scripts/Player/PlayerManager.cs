@@ -27,7 +27,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public bool isHit=false;
     PlayerController playerController;
     PlayerEffectController playerEffectController;
-    Material material;
     [SerializeField] PlayerData playerData;
 
     private readonly ReactiveProperty<float> HPratio=new(1);
@@ -37,9 +36,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
     {
         playerController = GetComponent<PlayerController>();
         playerEffectController=GetComponent<PlayerEffectController>();
-        Renderer renderer=GetComponent<Renderer>();
-        material=renderer.material;
-        Debug.Log(material);
 
         if (playerData != null)
         {
@@ -430,7 +426,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
         isHit=true;
         HP -= damage;
         HPratio.Value=(float)HP/playerData.HP;
-        await playerEffectController.HitEffect(damage,isHit);
+        await playerEffectController.HitEffect(damage);
+        isHit=false;
         Debug.Log($"Player {playerIndex + 1} took {damage} damage. Current HP: {HP}");
         if (HP <= 0)
         {
