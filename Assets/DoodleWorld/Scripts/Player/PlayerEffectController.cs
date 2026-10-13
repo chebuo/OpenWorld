@@ -12,14 +12,13 @@ public class PlayerEffectController : MonoBehaviour
         material=renderer.material;
     }
 
-    public async UniTask HitEffect(int damage,bool isHit)
+    public async UniTask HitEffect(int damage)
     {
         material.EnableKeyword("_EMISSION");
         await HitStop(damage);
         await UniTask.Delay(500);
         material.DisableKeyword("_EMISSION");
         Debug.Log("hitEffect");
-        isHit=false;
     }
 
     public async UniTask HitStop(int damage)
