@@ -104,8 +104,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
             attackAction = playerMap.FindAction("Attack");
             lookAction=playerMap.FindAction("Look");
         }
-
-        Debug.Log($"[P{playerIndex + 1}] Input setup complete. Device: {(device != null ? device.displayName : "None")}");
     }
 
     public void StartInput()
@@ -116,7 +114,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
         }
         isWaitInput = true;
         ChangeState(PlayerState.idle);
-        Debug.Log($"[P{playerIndex + 1}] Input started.");
     }
 
     public void StopInput()

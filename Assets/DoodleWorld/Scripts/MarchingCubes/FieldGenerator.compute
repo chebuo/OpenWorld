@@ -11,7 +11,13 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 
     uint index = id.x + Dims.x * (id.y + Dims.y * id.z);
 
-    // 空気が一切存在しない「すべて地中 (Solid)」の空間にする
-    // 密度 (Density) をすべてのボクセルで正の値 (1.0) に設定
-    Voxels[index] = 1.0f;
+    float3 pos=float3(id)+0.5f;
+    float3 center=float3(Dims)*0.5f;
+    float3 halfSize=float3(Dims)*0.35f;
+    float3 localPos=abs(pos-center);
+    bool inside=localPos.x<halfSize.x&&
+        localPos.y<halfSize.y&&
+        localPos.z<halfSize.z;
+
+    Voxels[index] = inside?1.0f:-1.0f;
 }

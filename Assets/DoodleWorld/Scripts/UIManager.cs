@@ -26,7 +26,6 @@ public class UIManager : MonoBehaviour
         {
             UpdatePlayerUI(playerIndex);
             UpdateReadyUI();
-            Debug.Log($"Player {playerIndex} state changed. Updated UI.");
         }).AddTo(this);
 
         deviceManager.OnAllReady.Subscribe(_ =>
@@ -49,7 +48,6 @@ public class UIManager : MonoBehaviour
                 playerImages[playerIndex].sprite=readySprites;
                 break;
         }
-        Debug.Log($"Player {playerIndex}P:{state}");
     }
 
     private void UpdateReadyUI()

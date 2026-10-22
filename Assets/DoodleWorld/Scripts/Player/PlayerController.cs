@@ -17,6 +17,11 @@ public class PlayerController : MonoBehaviour
     private readonly ReactiveProperty<float> sumDigAmount=new(0);
     public ReadOnlyReactiveProperty<float> SumDigAmount=>sumDigAmount;
 
+    [SerializeField]float levelUpWalkSpeed=1.2f;
+    [SerializeField]float levelUpAttackForce=1f;
+    [SerializeField]float levelUpDigRadius=0.5f;
+    [SerializeField]float levelUpRecoverHP=20f;
+
     Rigidbody rb;
     [SerializeField] TerrainGenerator terrainGenerator;
     PlayerManager playerManager;
@@ -132,13 +137,12 @@ public class PlayerController : MonoBehaviour
         
         item.remaining--;
         currentItemRemaining.Value=item.remaining;
-        GameObject weapon=Instantiate(item.shape,transform.position+transform.forward*item.distance,transform.rotation);
+        GameObject weapon=Instantiate(item.shape,transform.position+transform.forward*item.distance,transform.rotation*item.shape.transform.rotation);
         ItemController itemController=weapon.GetComponent<ItemController>();
         if (itemController != null)
         {
             itemController.Init(item.power,this.gameObject);
         }
-        Destroy(weapon,1f);
 
         if(item.remaining<=0)
         {
@@ -156,16 +160,16 @@ public class PlayerController : MonoBehaviour
         switch(levelUpEffect.type)
         {
             case StatusEffectType.WalkSpeed:
-                levelUpEffect.value=1.2f;
+                levelUpEffect.value=levelUpWalkSpeed;
                 break;
             case StatusEffectType.AttackForce:
-                levelUpEffect.value=1.5f;
+                levelUpEffect.value=levelUpAttackForce;
                 break;
             case StatusEffectType.DigRadius:
-                levelUpEffect.value=0.5f;
+                levelUpEffect.value=levelUpDigRadius;
                 break;
             case StatusEffectType.RecoverHP:
-                levelUpEffect.value=20f;
+                levelUpEffect.value=levelUpRecoverHP;
                 break;
             default:
                 levelUpEffect.value=0f;

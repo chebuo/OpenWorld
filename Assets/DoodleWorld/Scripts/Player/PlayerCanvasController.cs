@@ -64,14 +64,12 @@ public class PlayerCanvasController : MonoBehaviour
             while (digAmount >= levelUpUntil + lastLevelUp)
             {
                 lastLevelUp += levelUpUntil;
-                Debug.Log($"Level Up! Dig Amount: {digAmount}, Level Up Threshold: {levelUpUntil}");
                 levelUpUntil =levelUpUntil*2; // 次のレベルアップまでの量を増やす
                 playerController.LevelUp();
             }
             float score=digAmount - lastLevelUp;
             float fillAmount=score/levelUpUntil;
             digAmountImage.fillAmount = Mathf.Clamp01(fillAmount);
-            Debug.Log($"Dig Amount: {digAmount}, Fill Amount: {digAmountImage.fillAmount}");
         }).AddTo(this);
 
         playerManager.HPRatio.Select(ratio => Mathf.Clamp01(ratio)).Subscribe(ratio=>{
