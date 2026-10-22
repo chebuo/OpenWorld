@@ -18,20 +18,20 @@ MonoBehaviour:
       distance: 5
       power: 2
       remaining: 2
-      icon: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+      icon: {fileID: 21300000, guid: c61fe3a0389231b459f16a8f8eaa0e75, type: 3}
     statusEffects: []
-    prefab: {fileID: 4580993248233325915, guid: 18bc6b2a747d07941a0a240c84bd3c6e, type: 3}
+    prefab: {fileID: 8842380806726251394, guid: 7ae81f547c6a91b4bb0eef17ee1c81d6, type: 3}
     maxHP: 20
     hardness: 5
     rarity: 1
   - itemProp:
-      shape: {fileID: 2325972225595148524, guid: 26a6b5d5d633c5a4cab8a8bc9d68a3b3, type: 3}
-      distance: 10
+      shape: {fileID: 6527727635706958543, guid: 4cb27e96526aa3b4ea7e2bf57dccc082, type: 3}
+      distance: 1
       power: 3
       remaining: 2
-      icon: {fileID: 21300000, guid: dcf932b7d74df334bb3609647a54bb25, type: 3}
+      icon: {fileID: 21300000, guid: 069297898c8c01f45abd227b4914ddcf, type: 3}
     statusEffects: []
-    prefab: {fileID: 4580993248233325915, guid: 57accb5daf8cd234c84739f1691d6315, type: 3}
+    prefab: {fileID: 172116851957778879, guid: 358ecd4782448724997bc23922ab44be, type: 3}
     maxHP: 30
     hardness: 5
     rarity: 1
@@ -44,7 +44,7 @@ MonoBehaviour:
     statusEffects:
     - type: 0
       value: 0
-    prefab: {fileID: 4580993248233325915, guid: 57accb5daf8cd234c84739f1691d6315, type: 3}
+    prefab: {fileID: 172116851957778879, guid: 358ecd4782448724997bc23922ab44be, type: 3}
     maxHP: 30
     hardness: 5
     rarity: 1
@@ -56,8 +56,8 @@ MonoBehaviour:
       icon: {fileID: 21300000, guid: 580b3ec1e3eeae54bbbf3e20b31c31ba, type: 3}
     statusEffects:
     - type: 3
-      value: 1
-    prefab: {fileID: 33064999353637458, guid: 7dc5e87d967fe2b4ab5b772305909711, type: 3}
+      value: 0.5
+    prefab: {fileID: 2931013326089930165, guid: 9ab7a981f7f1ea94f8e868e157a2ab73, type: 3}
     maxHP: 10
     hardness: 5
     rarity: 1
@@ -70,7 +70,7 @@ MonoBehaviour:
     statusEffects:
     - type: 2
       value: 1
-    prefab: {fileID: 33064999353637458, guid: 42f369de4a4f99941a9c9d11e8c1fd0f, type: 3}
+    prefab: {fileID: 2619460393197344696, guid: e7ffc66c66da1b646b36e4bdda43bddc, type: 3}
     maxHP: 10
     hardness: 5
     rarity: 1

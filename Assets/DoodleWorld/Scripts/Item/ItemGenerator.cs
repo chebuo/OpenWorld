@@ -18,11 +18,12 @@ public class ItemGenerator : MonoBehaviour
         int z = Random.Range(2, dims.z - 2);
 
         Vector3 localPos =terrainGenerator.GetVoxelLocalPosition(x, y, z);
+        localPos*=0.65f;
 
         int itemIndex=Random.Range(0, itemData.items.Length);
         ItemParams item=itemData.items[itemIndex];
 
-        GameObject itemObj=Instantiate(item.prefab,terrainGenerator.transform.TransformPoint(localPos),Quaternion.identity,transform);
+        GameObject itemObj=Instantiate(item.prefab,terrainGenerator.transform.TransformPoint(localPos),Random.rotation,transform);
         itemObj.GetComponent<OreController>().Init(item);
 
         return true;

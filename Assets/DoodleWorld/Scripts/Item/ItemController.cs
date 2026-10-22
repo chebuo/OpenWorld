@@ -1,3 +1,5 @@
+using Cysharp.Threading.Tasks;
+using R3;
 using UnityEngine;
 
 public class ItemController : MonoBehaviour
@@ -6,34 +8,32 @@ public class ItemController : MonoBehaviour
     public float multipler;
     private GameObject owner;
 
-    Collider col;
-    TerrainGenerator terrainGenerator;
+    public bool isAttack=true;
+
+    IWeapon weapon;
 
     public void Init(float attackForce,GameObject owner)
     {
         this.power=attackForce*multipler;
         this.owner=owner;
+
+        Attack().Forget();
     }
 
     void Awake()
     {
-        terrainGenerator=FindFirstObjectByType<TerrainGenerator>();
-        col=this.GetComponent<MeshCollider>();
-    }
+        weapon=this.GetComponent<IWeapon>();
 
-    void Start()
+        weapon.IsAttack.Where(isAttack=>!isAttack).Take(1).Subscribe(_=>{
+            Destroy(this.gameObject);
+        }).AddTo(this);
+    }
+    
+    async UniTask Attack()
     {
-        Attack();
+        await UniTask.WaitUntil(()=>owner!=null);
+        await weapon.Attack(owner,power);
         Debug.Log(power);
-    }
-
-    void Attack()
-    {
-        PlayerController playerController=owner.GetComponent<PlayerController>();
-        if(playerController!=null)
-        {
-            playerController.AddDigAmount(terrainGenerator.DigCollider(col,power));
-        }
     }
 
     private void OnTriggerEnter(Collider col)
