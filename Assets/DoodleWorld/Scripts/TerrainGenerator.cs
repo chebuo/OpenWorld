@@ -8,7 +8,9 @@ sealed class TerrainGenerator : MonoBehaviour
     [SerializeField] float _gridScale = 1f;
     [SerializeField] int _triangleBudget = 262144;
     [SerializeField] float _targetValue = 0;
-
+    
+    private int protectedThickness=5;
+    
     [Header("Compute Shaders")]
     [SerializeField] ComputeShader _densityCompute;
     [SerializeField] ComputeShader _builderCompute;
@@ -18,6 +20,9 @@ sealed class TerrainGenerator : MonoBehaviour
     DensityField _density;
 
     int VoxelCount => _dimensions.x * _dimensions.y * _dimensions.z;
+
+    [SerializeField]GameObject backCake;
+    [SerializeField]Material backMaterial;
 
     public bool isInit=false;
 
@@ -49,6 +54,24 @@ sealed class TerrainGenerator : MonoBehaviour
         BuildMesh();
 
         isInit=true;
+    }
+
+    private bool IsProtected(Vector3 voxelLocalPos)
+    {
+        Vector3 p = new Vector3(
+            Mathf.Abs(voxelLocalPos.x),
+            Mathf.Abs(voxelLocalPos.y),
+            Mathf.Abs(voxelLocalPos.z)
+        );
+ 
+        Vector3 halfSize = Vector3.Scale(
+            (Vector3)_dimensions,
+            Vector3.one * 0.4f
+        ) * _gridScale;
+
+        return p.x >= halfSize.x - protectedThickness ||
+            p.y >= halfSize.y - protectedThickness ||
+            p.z >= halfSize.z - protectedThickness;
     }
 
     public bool IsSolid(int x,int y,int z)
@@ -102,9 +125,11 @@ sealed class TerrainGenerator : MonoBehaviour
         for (int y = minY; y < maxY; y++)
         for (int z = minZ; z < maxZ; z++)
         {
-            if(x<margin||x>=_dimensions.x-margin||y<margin||y>=_dimensions.y-margin||z<margin||z>=_dimensions.z-margin)continue;
+            
             // 各ボクセルのローカル空間座標
             Vector3 voxelLocalPos = (new Vector3(x + 0.5f, y + 0.5f, z + 0.5f) - (Vector3)_dimensions * 0.5f) * _gridScale;
+
+            if(IsProtected(voxelLocalPos))continue;
 
             // 掘削ポイントからの距離
             float dist = Vector3.Distance(voxelLocalPos, localPos);
@@ -196,14 +221,11 @@ sealed class TerrainGenerator : MonoBehaviour
         for (int y = minY; y < maxY; y++)
         for (int z = minZ; z < maxZ; z++)
         {
-            if (x < margin || x >= _dimensions.x - margin ||
-                y < margin || y >= _dimensions.y - margin ||
-                z < margin || z >= _dimensions.z - margin)
-                continue;
-
             Vector3 voxelLocalPos =
                 (new Vector3(x + 0.5f, y + 0.5f, z + 0.5f)
                 - (Vector3)_dimensions * 0.5f) * _gridScale;
+
+            if(IsProtected(voxelLocalPos))continue;
 
             Vector3 voxelWorldPos =
                 transform.TransformPoint(voxelLocalPos);
